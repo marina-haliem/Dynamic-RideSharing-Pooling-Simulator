@@ -253,14 +253,21 @@ class Simulator(object):
 
                 else:
                     route, triptime = vehicle.current_plan_routes.pop(0)
-                    # print(vid, triptime, route)
                     vehicle.nxt_stop = vehicle.current_plan.pop(0)
+                    if len(route) == 0:
+                        #print("B: ", triptime, len(vehicle.current_plan), len(vehicle.ordered_pickups_dropoffs_ids),
+                        #      len(vehicle.current_plan_routes))
+                        r2 = self.routing_engine.route_time([(vehicle.get_location(), vehicle.nxt_stop)])
+                        route, triptime = r2[0]
+                        #print("Updated: ", triptime, len(route))
                     # print("Loc: ", vehicle.get_location(), "Nxt: ", vehicle.nxt_stop)
                     cust_id = vehicle.ordered_pickups_dropoffs_ids[0]
+                    # print("Loc: ", vehicle.get_location(), "Nxt: ", vehicle.nxt_stop)
+                 
                     if triptime == 0.0:   # Triptime = 0, means vehicle already reached next stop
                         # vehicle.current_plan.pop(0)
                         pick_drop = vehicle.pickup_flags.pop(0)
-                        id = vehicle.ordered_pickups_dropoffs_ids.pop(0)
+                        cust_id = vehicle.ordered_pickups_dropoffs_ids.pop(0)
                         # print("routes: ", routes)
                         # speed = vehicle.compute_speed(route, triptime)
                         # vehicle.set_route(route, speed)
