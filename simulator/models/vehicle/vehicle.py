@@ -29,13 +29,13 @@ class Vehicle(object):
         self.__behavior = self.behavior_models[vehicle_state.status]
         self.onboard_customers = []       # A vehicle can have a list of customers  #Customers already picked up
         self.accepted_customers = []        # Customers to be picked up
-        self.ordered_pickups_dropoffs_ids = []
-        self.pickup_flags = []
-        self.current_plan = []
+        self.ordered_pickups_dropoffs_ids = []  # Queue of IDs to determine next customer to be picked up or dropped off
+        self.pickup_flags = []      # Queue of Flags to determine whether next stop is pickup or dropof 
+        self.current_plan = []      # Queue of locations determining th current planned trip
+        self.current_plan_routes = []   # Queue of routes corresponding to each location on the current trip
         self.nxt_stop = None
         self.__customers_ids = []
         self.__route_plan = []
-        self.current_plan_routes = []
         self.earnings = 0
         self.working_time = 0
         self.num_trip_customers = 0
@@ -219,7 +219,7 @@ class Vehicle(object):
             # print("Pickup: ", triptime, route)
             # print(vehicle.get_location(), vehicle.current_plan[0])
             # If already there at nxt stop
-            if triptime == 0.0:
+            if triptime == 0.0:    # Triptime = 0, means vehicle already arrived at next stop
                 self.pickup_flags.pop(0)
                 id = self.ordered_pickups_dropoffs_ids.pop(0)
                 self.state.lat, self.state.lon = self.nxt_stop
@@ -256,10 +256,7 @@ class Vehicle(object):
         customer.get_off()
         # print("Vid: ", self.get_id(), "'s Payment:")
         self.earnings += customer.make_payment( self.state.driver_base_per_trip)
-        # self.state.travel_dist += great_circle_distance(customer.get_origin()[0], customer.get_origin()[1],
-        #                                                     customer.get_destination()[0],
-        #                                                     customer.get_destination()[1])
-
+        
         self.state.current_capacity -= 1
         self.tmp_capacity -= 1
 
@@ -281,7 +278,7 @@ class Vehicle(object):
             route, triptime = self.current_plan_routes.pop(0)
             # print("Dropoff: ", triptime, route)
             # print(vehicle.get_location(), vehicle.current_plan[0])
-            if triptime == 0.0:
+            if triptime == 0.0:      # Triptime = 0, means vehicle already arrived at next stop
                 self.pickup_flags.pop(0)
                 id = self.ordered_pickups_dropoffs_ids.pop(0)
                 # speed = self.compute_speed(route, triptime)
