@@ -216,7 +216,7 @@ if __name__ == '__main__':
 
 
                     if (len(m_commands) == 0):
-                        print("ERR!", len(vehicles), len(requests), len(accepted_commands), len(prev_rejected_req))
+                        # print("ERR!", len(vehicles), len(requests), len(accepted_commands), len(prev_rejected_req))
                         continue
 
                     avg_cap = 0
