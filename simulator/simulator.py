@@ -156,17 +156,9 @@ class Simulator(object):
 
                 vehicle_accepted_cust[vid].append(command["customer_id"][index])
 
-                # if vehicle.state.accept_new_request:
-                #     print("Vid: ", vehicle.get_id(), vehicle.state.status, "Prev: ", vehicle.current_plan, [c.get_id(
-                #
-                #     ) for c in vehicle.onboard_customers], vehicle.ordered_pickups_dropoffs_ids)
 
                 waiting_time = self.generate_plan(vehicle, vehicle_accepted_cust[vid], customer)
 
-                # if vehicle.state.accept_new_request:
-                #     print("Vid: ", vehicle.get_id(), "New: ", vehicle.current_plan, vehicle.ordered_pickups_dropoffs_ids)
-
-                # print("Customers: ", len(vehicle_accepted_cust[vid]), vehicle.current_plan, "Prev: ", prev_plan)
                 init_price = command["init_price"][index]
 
                 if len(vehicle_accepted_cust[vid]) == 1:
@@ -182,22 +174,10 @@ class Simulator(object):
 
                     command["duration"][index] = waiting_time
 
-                    # total_trip_dist = dist_for_pickup + dist_till_dropoff
-                    # [travel_price, wait_price] = vehicle.get_price_rates()
-                    # init_price = calculate_price(total_trip_dist, waiting_time, vehicle.state.mileage, travel_price,
-                    #                                 wait_price, vehicle.state.gas_price,
-                    #                                 vehicle.state.driver_base_per_trip)
-                    #
-                    # command["distance"][index] = total_trip_dist
+                 
                     command["init_price"][index] = init_price
 
                     # print("A: ", command)
-
-
-                # else:
-                #     cust_price_time = recalculate_price_per_customer(vehicle.current_plan, vehicle.pickup_flags,
-                #                                                      vehicle.ordered_pickups_dropoffs_ids)
-                #     init_price, triptime = cust_price_time[command["customer_id"][index]]
 
 
                 if FLAGS.enable_pricing:
@@ -256,10 +236,6 @@ class Simulator(object):
                     vehicle.accepted_customers.append(command["customer_id"][index])
                     # vehicle.accepted_customers.append([customer, triptime, price_response, command["distance"][index]])
                     customer.wait_for_vehicle(waiting_time)
-                    # vehicle_accepted_cust[vid].append(command["customer_id"][index])
-                    # vehicle.state.current_capacity += 1
-                    # self.generate_plan(vehicle, vehicle_accepted_cust[vid], customer)
-                    # Consider all permutations and generate plan
                     accepted_commands = commands
                     # od_accepted_pairs = pairs
                     # vehicle.state.status = status_codes.V_ASSIGNED
@@ -267,27 +243,7 @@ class Simulator(object):
             if FLAGS.enable_pooling:
                 # print("vid: ", vehicle.get_id(), "Accepted: ", len(vehicle_accepted_cust[vid]))
                 vehicle.tmp_capacity = vehicle.state.current_capacity
-                # if vid not in vehicle_list and len(vehicle_accepted_cust[vid]) != 0:
-                #     vehicle_list.append(vid)
-
-                # print("vid: ", vehicle.get_id(), len(vehicle_accepted_cust[vid]), "Final Plan: ", vehicle.current_plan,
-                #                               vehicle.ordered_pickups_dropoffs_ids)
-                # routes = self.routing_engine.route([(vehicle.get_location(), vehicle.current_plan[0])])
-
-                # if len(vehicle_accepted_cust[vid]) == 0:
-                    # vehicle.current_plan = []
-                    # vehicle.pickup_flags = []
-                    # vehicle.current_plan_routes = []
-                    # vehicle.ordered_pickups_dropoffs_ids = []
-                    # continue
-
-                # if len(vehicle_accepted_cust[vid]) == 1:
-                #     # print("One, vid: ",  vehicle.get_id())
-                #     od_pairs = [(vehicle.get_location(), vehicle.current_plan[0]),
-                #                 (vehicle.current_plan[0], vehicle.current_plan[1])]
-                #     routes = self.routing_engine.route_time(od_pairs)
-                #     for (route, time) in routes:
-                #         vehicle.current_plan_routes.append([route, time])
+                
 
                 # print("vid: ", vehicle.get_id(), len(vehicle_accepted_cust[vid]), "Final Plan: ", vehicle.current_plan,
                 #                               vehicle.ordered_pickups_dropoffs_ids, len(vehicle.current_plan_routes))
@@ -301,7 +257,7 @@ class Simulator(object):
                     vehicle.nxt_stop = vehicle.current_plan.pop(0)
                     # print("Loc: ", vehicle.get_location(), "Nxt: ", vehicle.nxt_stop)
                     cust_id = vehicle.ordered_pickups_dropoffs_ids[0]
-                    if triptime == 0.0:
+                    if triptime == 0.0:   # Triptime = 0, means vehicle already reached next stop
                         # vehicle.current_plan.pop(0)
                         pick_drop = vehicle.pickup_flags.pop(0)
                         id = vehicle.ordered_pickups_dropoffs_ids.pop(0)
@@ -332,40 +288,6 @@ class Simulator(object):
                         vehicle.head_for_customer(triptime, cust_id, route)
                         # vehicle.nxt_stop = vehicle.current_plan[0]
                         vehicle.change_to_assigned()
-
-
-        # if FLAGS.enable_pooling:
-        #     for vi in vehicle_list:
-        #         vehicle = VehicleRepository.get(vi)
-                # vehicle.print_vehicle()
-
-                # od_pairs = []
-                # potential_cust_time = {}
-                # potential_cust_route = {}
-                # for cust in vehicle.accepted_customers:
-                #     # print(cust[0].get_origin(), ", ", vehicle.get_location())
-                #     if len(vehicle.accepted_customers) == 1:
-                #         vehicle.head_for_customer(cust[0].get_origin(), cust[1], cust[0].get_id(), cust[3], None)
-                #     else:
-                #         od_pairs.append((vehicle.get_location(),cust[0].get_origin()))
-                #
-                # potential_routes = self.routing_engine.route(od_pairs)
-                # for customer, (route, time) in zip(vehicle.accepted_customers, potential_routes):
-                #     potential_cust_time[customer[0].get_id()] = time
-                #     potential_cust_route[customer[0].get_id()] = route
-                #
-                # ordered_time = {k: v for k, v in sorted(potential_cust_time.items(), key=lambda item: item[1])}
-                # ordered_routes = [potential_cust_route[k] for k in ordered_time.keys()]
-                # vehicle.ordered_pickups = ordered_time.keys()
-                # vehicle.pickup_routes = ordered_routes
-                # first_cust = CustomerRepository.get(vehicle.ordered_pickups[0])
-                # vehicle.head_for_customer(first_cust.get_origin(), potential_cust_time[vehicle.ordered_pickups[0]], first_cust.get_id(), None, potential_cust_route[vehicle.ordered_pickups[0]])
-                # vehicle.change_to_assigned()
-
-
-        # For each vehicle
-        # Need to calculate route (and order customer list) before heading to customer, check capacity first,
-        # When done dynamically -> re-calculate route/price for on-board customers as well
 
         return rejected_requests, accepted_commands
 
