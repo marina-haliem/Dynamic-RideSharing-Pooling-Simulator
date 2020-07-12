@@ -16,7 +16,7 @@ def calculate_price(dist, wait_time, mileage, price_per_travel_m, price_per_wait
     if wait_time <= 0:
         wait_time = 3600
     if wait_time > 99999:
-        wait_time = 99999999
+        wait_time = 999
     if dist < 10:
         dist = 1000
 
