@@ -2,7 +2,7 @@
 
 https://purr.purdue.edu/projects/ridesharing/files
 
-This project is in python 3.7 and tesnorflow 2.0
+This project is in python 3.7 and tesnorflow 1.15.0
 ## Setup
 Below you will find step-by-step instructions to set up the NYC taxi simulation using 2016-05 trips for training and 2016-06 trips for evaluation.
 ### 1. Download OSM Data
