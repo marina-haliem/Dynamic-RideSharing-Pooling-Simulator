@@ -30,9 +30,15 @@ class Vehicle(object):
         self.onboard_customers = []       # A vehicle can have a list of customers  #Customers already picked up
         self.accepted_customers = []        # Customers to be picked up
         self.ordered_pickups_dropoffs_ids = []  # Queue of IDs to determine next customer to be picked up or dropped off
+<<<<<<< HEAD
         self.pickup_flags = []  # Queue of Flags to determine whether next stop is pickup or dropof
         self.current_plan = []  # Queue of locations determining th current planned trip
         self.current_plan_routes = []  # Queue of routes corresponding to each location on the current trip
+=======
+        self.pickup_flags = []      # Queue of Flags to determine whether next stop is pickup or dropof 
+        self.current_plan = []      # Queue of locations determining th current planned trip
+        self.current_plan_routes = []   # Queue of routes corresponding to each location on the current trip
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         self.nxt_stop = None
         self.__customers_ids = []
         self.__route_plan = []
@@ -54,8 +60,13 @@ class Vehicle(object):
         self.working_time += timestep
         if self.state.status == status_codes.V_OCCUPIED:
             self.duration[status_codes.V_OCCUPIED] += timestep
+<<<<<<< HEAD
         elif self.state.status == status_codes.V_CRUISING:
             self.duration[status_codes.V_CRUISING] += timestep
+=======
+        # elif self.state.status == status_codes.V_CRUISING:
+        #     self.duration[status_codes.V_CRUISING] += timestep
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         # elif self.state.status == status_codes.V_OFF_DUTY:
         #     self.duration[status_codes.V_OFF_DUTY] += timestep
         elif self.state.status == status_codes.V_ASSIGNED:
@@ -63,7 +74,11 @@ class Vehicle(object):
         if self.state.status == status_codes.V_IDLE:
             self.duration[status_codes.V_IDLE] += timestep
 
+<<<<<<< HEAD
         if self.state.status == status_codes.V_IDLE | self.state.status == status_codes.V_CRUISING:
+=======
+        if self.__behavior.available:
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
             self.state.idle_duration += timestep
             # self.state.total_idle += timestep
         else:
@@ -91,6 +106,65 @@ class Vehicle(object):
         cost = (self.compute_fuel_consumption()/100.0)
         return self.earnings - cost
 
+<<<<<<< HEAD
+=======
+    # Vehicle's Utility
+    # def propose_price(self, price, request):
+    #     if len(self.q_action_dict) == 0:
+    #         print("NOT DISPATCHED BEFORE!")
+    #         return price
+    #     else:
+    #         # print(self.q_action_dict)
+    #         r_lon, r_lat = request.origin_lon, request.origin_lat
+    #         r_x, r_y = mesh.convert_lonlat_to_xy(r_lon, r_lat)
+    #         # print("ID: ", self.state.id)
+    #         # print("Request: ", r_x, r_y)
+    #         sorted_q = {k: v for k, v in sorted(self.q_action_dict.items(), key=lambda item: item[1], reverse=True)}
+    #         # print("Sorted: ", sorted_q)
+    #         # print("Epsilon: ", self.epsilon, len(self.q_action_dict))
+    #         filtered_q = list(islice(sorted_q, self.epsilon))
+    #         # filtered_q = dict(filtered_q)
+    #         # print("Filtered: ", filtered_q)
+    #         if (r_x, r_y) in filtered_q:
+    #             # print("Here!")
+    #             return price
+    #
+    #         if (r_x, r_y) in self.q_action_dict.keys():
+    #             # print("Exists!")
+    #             # req_q = self.q_action_dict.get((r_x,r_y))
+    #             rank = 0
+    #             index = 0
+    #             for (kx, ky), v in sorted_q.items():
+    #                 # print((kx,ky), (r_x, r_y))
+    #                 if (kx, ky) == (r_x, r_y):
+    #                     rank = index
+    #                 index += 1
+    #         else:
+    #             # print("Does not exist!")
+    #             dist_list = {}
+    #             for (kx,ky), v in self.q_action_dict.items():
+    #                 k_lon, k_lat = mesh.convert_xy_to_lonlat(kx, ky)
+    #                 dist = great_circle_distance(r_lat, r_lon, k_lat, k_lon)
+    #                 dist_list[(kx, ky)] = dist
+    #
+    #             # print("D: ", dist_list)
+    #             min_dist = np.min(list(dist_list.values()))
+    #             (min_x, min_y) = list(dist_list.keys())[list(dist_list.values()).index(min_dist)]
+    #             req_q = self.q_action_dict.get((min_x, min_y))
+    #             # print(min_dist, (min_x,min_y), req_q)
+    #
+    #             rank = 0
+    #             index = 0
+    #             for (kx,ky), v in sorted_q.items():
+    #                 if (kx,ky) == (min_x, min_y):
+    #                     rank = index
+    #                 index +=1
+    #         # print("Rank: ", rank, len(self.q_action_dict))
+    #         rank = 1 - (rank/len(self.q_action_dict))
+    #         # print("Rank_: ", rank, (self.state.driver_base_per_trip/100))
+    #         return price + (rank*0.5*(self.state.driver_base_per_trip/100))
+
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
     def cruise(self, route, triptime):
         assert self.__behavior.available
         speed = self.compute_speed(route, triptime)
@@ -135,7 +209,11 @@ class Vehicle(object):
     def pickup(self, customer):
         # print("At Pickup!", self.get_location(), " -> ", customer.get_origin())
         # print(self.get_id(), "Pickup: ", self.current_plan, self.ordered_pickups_dropoffs_ids)
+<<<<<<< HEAD
         assert self.get_location() == customer.get_origin()
+=======
+        # assert self.get_location() == customer.get_origin()
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         # if not FLAGS.enable_pooling:
             # print("Pickup, not pooling!")
         customer.ride_on()
@@ -163,7 +241,11 @@ class Vehicle(object):
             # print("Pickup: ", triptime, route)
             # print(vehicle.get_location(), vehicle.current_plan[0])
             # If already there at nxt stop
+<<<<<<< HEAD
             if triptime == 0.0:
+=======
+            if triptime == 0.0:    # Triptime = 0, means vehicle already arrived at next stop
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                 self.pickup_flags.pop(0)
                 id = self.ordered_pickups_dropoffs_ids.pop(0)
                 self.state.lat, self.state.lon = self.nxt_stop
@@ -194,16 +276,25 @@ class Vehicle(object):
         # lenC = len(self.onboard_customers)
         # print("At Dropoff!", self.get_location(), " -> ", customer.get_destination())
         # print(self.get_id(), "Dropoff", self.current_plan, self.ordered_pickups_dropoffs_ids)
+<<<<<<< HEAD
         assert self.get_location() == customer.get_destination()
+=======
+        # assert self.get_location() == customer.get_destination()
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
 
         self.onboard_customers.remove(customer)
         customer.get_off()
         # print("Vid: ", self.get_id(), "'s Payment:")
+<<<<<<< HEAD
         self.earnings += customer.make_payment(self.state.driver_base_per_trip)
         # self.state.travel_dist += great_circle_distance(customer.get_origin()[0], customer.get_origin()[1],
         #                                                     customer.get_destination()[0],
         #                                                     customer.get_destination()[1])
 
+=======
+        self.earnings += customer.make_payment( self.state.driver_base_per_trip)
+        
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         self.state.current_capacity -= 1
         self.tmp_capacity -= 1
 
@@ -225,7 +316,11 @@ class Vehicle(object):
             route, triptime = self.current_plan_routes.pop(0)
             # print("Dropoff: ", triptime, route)
             # print(vehicle.get_location(), vehicle.current_plan[0])
+<<<<<<< HEAD
             if triptime == 0.0:
+=======
+            if triptime == 0.0:      # Triptime = 0, means vehicle already arrived at next stop
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                 self.pickup_flags.pop(0)
                 id = self.ordered_pickups_dropoffs_ids.pop(0)
                 # speed = self.compute_speed(route, triptime)

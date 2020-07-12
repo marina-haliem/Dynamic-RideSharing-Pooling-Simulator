@@ -27,14 +27,19 @@ class DQN_Agent(Dummy_Agent):
 
     def startup_dispatch(self, current_time, vehicles):
         self.dispatch_policy.update_state(current_time, vehicles)
+<<<<<<< HEAD
         if FLAGS.train:
             self.dispatch_policy.give_rewards(vehicles)
+=======
+        self.dispatch_policy.give_rewards(vehicles)
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         dispatch_commands = self.dispatch_policy.get_dispatch_decisions(vehicles)
         self.dispatch_policy.record_dispatch(vehicles.index, current_time)
         for vid in vehicles.index:
             vehicle = VehicleRepository.get(vid)
             vehicle.first_dispatched = 1
         ######### Only with the DQN agent not the dummy #############
+<<<<<<< HEAD
         if FLAGS.train:
             self.dispatch_policy.backup_supply_demand()
             # If size exceeded, run training
@@ -43,6 +48,15 @@ class DQN_Agent(Dummy_Agent):
                 # print("iterations : {}, average_loss : {:.3f}, average_q_max : {:.3f}".format(
                 #     self.q_network.n_steps, average_loss, average_q_max), flush=True)
                 self.dispatch_policy.q_network.write_summary(average_loss, average_q_max)
+=======
+        self.dispatch_policy.backup_supply_demand()
+        # If size exceeded, run training
+        if len(self.dispatch_policy.supply_demand_history) > INITIAL_MEMORY_SIZE:
+            average_loss, average_q_max = self.dispatch_policy.train_network(FLAGS.batch_size)
+            # print("iterations : {}, average_loss : {:.3f}, average_q_max : {:.3f}".format(
+            #     self.q_network.n_steps, average_loss, average_q_max), flush=True)
+            self.dispatch_policy.q_network.write_summary(average_loss, average_q_max)
+>>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         return dispatch_commands
 
 
