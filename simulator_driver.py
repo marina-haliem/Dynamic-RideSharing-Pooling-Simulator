@@ -191,12 +191,8 @@ if __name__ == '__main__':
                     continue
                 else:
                     # print("V1: ", len(vehicles))
-<<<<<<< HEAD
                     m_commands, vehicles, num_matched = Sim_experiment.central_agent.get_match_commands(current_time,
                                                                                                  vehicles, requests)
-=======
-                    m_commands, vehicles = Sim_experiment.central_agent.get_match_commands(current_time, vehicles, requests)
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                     # print("V2: ", len(vehicles))
 
                     # V_R_matching = defaultdict(list)
@@ -215,7 +211,6 @@ if __name__ == '__main__':
                     all_commands = d1_commands + d2_commands
                     # print("A: ", len(all_commands), " 1: ", len(d1_commands), " 2: ", len(d2_commands))
 
-<<<<<<< HEAD
                     prev_rejected_req, accepted_commands, num_accepted = Sim_experiment.simulator.match_vehicles(
                         m_commands, Sim_experiment.dqn_agent, Sim_experiment.dummy_agent)
                     # For DQN
@@ -223,15 +218,6 @@ if __name__ == '__main__':
 
                     if (num_matched == 0):
                         print("ERR!", len(vehicles), len(requests), num_accepted, len(prev_rejected_req))
-=======
-                    prev_rejected_req, accepted_commands = Sim_experiment.simulator.match_vehicles(m_commands, Sim_experiment.dqn_agent, Sim_experiment.dummy_agent)
-                    # For DQN
-                    Sim_experiment.simulator.dispatch_vehicles(all_commands)
-
-
-                    if (len(m_commands) == 0):
-                        # print("ERR!", len(vehicles), len(requests), len(accepted_commands), len(prev_rejected_req))
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                         continue
 
                     avg_cap = 0
@@ -245,10 +231,7 @@ if __name__ == '__main__':
                         # print(len(capacity), sum_avg_cust)
 
                     net_v = vehicles[vehicles.status != status_codes.V_OFF_DUTY]
-<<<<<<< HEAD
                     # print(len(net_v))
-=======
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                     occ_v = net_v[net_v.status == status_codes.V_OCCUPIED]
 
                     if len(occ_v) != len(capacity):
@@ -261,11 +244,7 @@ if __name__ == '__main__':
                         else:
                             average_wt = 0
                     else:
-<<<<<<< HEAD
                         if num_matched > 0:
-=======
-                        if len(m_commands) > 0:
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                             average_wt = np.mean([command['duration'] for command in m_commands]).astype(int)
                         else:
                             average_wt = 0
@@ -275,19 +254,11 @@ if __name__ == '__main__':
                     # Start time is a unix timesatmp, here we convert it to normal time
                     readable_time = datetime.utcfromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
                     if FLAGS.enable_pricing:
-<<<<<<< HEAD
                         rejected_requests = len(requests) - num_accepted
                         sum_accepts += num_accepted
                     else:
                         rejected_requests = len(requests) - num_matched
                         sum_accepts += num_matched
-=======
-                        rejected_requests = len(requests) - len(accepted_commands)
-                        sum_accepts += len(accepted_commands)
-                    else:
-                        rejected_requests = len(requests) - len(m_commands)
-                        sum_accepts += len(m_commands)
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                     # print("Total Rejected: ", rejected_requests)
                     sum_rejects += rejected_requests
 
@@ -307,30 +278,16 @@ if __name__ == '__main__':
                     #     average_wt /= len(accepted_commands)
 
                     summary = "{:s},{:d},{:d},{:d},{:d},{:d},{:d},{:d},{:.2f},{:.2f},{:.2f},{:.2f},{:.2f},{:.2f}, {:.2f}, {:.2f}".format(
-<<<<<<< HEAD
                             readable_time, current_time, len(net_v), len(net_v[net_v.status == status_codes.V_OCCUPIED]), len(requests), num_matched,
                             rejected_requests, num_accepted, average_wt, avg_earnings, avg_cost, avg_profit_dqn, avg_profit_dummy, avg_total_dist,
-=======
-                            readable_time, current_time, len(net_v), len(net_v[net_v.status == status_codes.V_OCCUPIED]), len(requests), matchings,
-                            rejected_requests, len(accepted_commands), average_wt, avg_earnings, avg_cost, avg_profit_dqn, avg_profit_dummy, avg_total_dist,
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                             avg_cap, avg_idle_time)
 
                     sim_logger.log_summary(summary)
 
-<<<<<<< HEAD
                     if FLAGS.verbose:
                         print("summary: ({})".format(summary), flush=True)
-=======
-                    # if FLAGS.verbose:
-                    #     print("summary: ({})".format(summary), flush=True)
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
 
 
     if FLAGS.train:
         print("Dumping experience memory as pickle...")
-<<<<<<< HEAD
         dispatch_policy.dump_experience_memory()
-=======
-        dispatch_policy.dump_experience_memory()
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074

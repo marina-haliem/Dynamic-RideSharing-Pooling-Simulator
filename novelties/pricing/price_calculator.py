@@ -13,25 +13,17 @@ def calculate_price(dist, wait_time, mileage, price_per_travel_m, price_per_wait
     # print(dist, price_per_travel_m, mileage, wait_time, price_per_wait_min)
     # We can use the fare associated with each request as the base fare
     # print("Dist: ", dist, "Dist Cost: ", (dist*price_per_travel_m), "Gas Price: ", (dist*(gas_price/(mileage*1000.0))), "Base: ", price_per_travel_m, "Wait time: ", wait_time, "Wait Cost: ",(price_per_wait_min/wait_time))
-<<<<<<< HEAD
     if wait_time <= 0:
         wait_time = 3600
     if wait_time > 99999:
         wait_time = 99999999
     if dist < 10:
         dist = 1000
-=======
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
 
     if((dist*price_per_travel_m) + (dist*(gas_price/(mileage*1000.0))) < (price_per_wait_min*wait_time)):
         print("ERR", )
         print("Dist: ", dist, "Dist Cost: ", (dist*price_per_travel_m), "Gas Price: ", (dist*(gas_price/(mileage*1000.0))), "Base: ", price_per_travel_m, "Wait time: ", wait_time, "Wait Cost: ",(price_per_wait_min*wait_time))
 
-<<<<<<< HEAD
-=======
-    if wait_time <= 0:
-        wait_time = 3600
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
     price = (dist*price_per_travel_m) + (dist*(gas_price/(mileage*1000.0))) - (price_per_wait_min*wait_time)
     # print("Final Price: ", round(driver_base+price, 2)/100.0)
     return round(driver_base+price,2)/100.0
