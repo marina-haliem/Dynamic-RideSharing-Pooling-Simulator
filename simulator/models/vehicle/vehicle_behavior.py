@@ -48,10 +48,7 @@ class Cruising(VehicleBehavior):
 
         self.drive(vehicle, timestep)
 
-<<<<<<< HEAD
 # NEEDS TO BE UPDATED (Dropoff one customer at a time) + Update location and new route
-=======
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
 class Occupied(VehicleBehavior):
     available = False
     # Updated remaining time to destination, if arrived customer gets off
@@ -74,16 +71,11 @@ class Occupied(VehicleBehavior):
             # customer.get_off()
             # print(len(vehicle.current_plan), vehicle.current_plan)
             # print(vehicle.ordered_pickups_dropoffs_ids)
-<<<<<<< HEAD
             id = vehicle.ordered_pickups_dropoffs_ids.pop(0)  # CHNAGE THIS LIST TO QUEUE, POP HERE AND HEAD TO
-=======
-            id = vehicle.ordered_pickups_dropoffs_ids.pop(0)
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
             # NEXT
             # print("vid: ", vehicle.get_id(), " -> pop: ", id)
             customer = simulator.models.customer.customer_repository.CustomerRepository.get(id)
             if vehicle.pickup_flags.pop(0) == 1:
-<<<<<<< HEAD
                 # print(vehicle.get_id(), "Occupied -> Pickup")
                 if vehicle.get_location() != customer.get_origin():
                     # Maps to the same location on map, just different GPS locations
@@ -111,10 +103,6 @@ class Occupied(VehicleBehavior):
                     # print("Extra: ", t, rt)
 
                     vehicle.state.lat, vehicle.state.lon = customer.get_destination()
-=======
-                vehicle.pickup(customer)  # At pickup, make the drop off plan (who gets dropped off first)
-            else:
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                 vehicle.dropoff(customer)
             # env.models.customer.customer_repository.CustomerRepository.delete(customer.get_id())
 
@@ -138,7 +126,6 @@ class Assigned(VehicleBehavior):
             # if FLAGS.enable_pooling:
                 # print("Assigned, pooling!")
             # print(vehicle.ordered_pickups_dropoffs_ids)
-<<<<<<< HEAD
             id = vehicle.ordered_pickups_dropoffs_ids.pop(0)    # CHNAGE THIS LIST TO QUEUE, POP HERE AND HEAD TO
             # NEXT
             # print("vid: ", vehicle.get_id(), "Loc: ", vehicle.get_location(), " -> pop: ", id)
@@ -166,25 +153,12 @@ class Assigned(VehicleBehavior):
                     # print("Extra: ", t, rt)
                     vehicle.state.lat, vehicle.state.lon = customer.get_origin()
                 vehicle.pickup(customer)    # At pickup, make the drop off plan (who gets dropped off first)
-=======
-            id = vehicle.ordered_pickups_dropoffs_ids.pop(0) 
-           
-            customer = simulator.models.customer.customer_repository.CustomerRepository.get(id)
-            # print("Customer Info:", customer.to_string())
-            # customer.ride_on()
-    
-            if vehicle.pickup_flags.pop(0) == 1:
-                vehicle.pickup(customer)    
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
             else:
                 # print("Assigned -> NEVER!!")
                 # vehicle.change_to_occupied()
                 # print(vehicle.get_id(), "Assigned -> Dropoff")
-<<<<<<< HEAD
                 if vehicle.get_location() != customer.get_destination():
                     vehicle.state.lat, vehicle.state.lon = customer.get_destination()
-=======
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                 vehicle.dropoff(customer)
 
             # else:

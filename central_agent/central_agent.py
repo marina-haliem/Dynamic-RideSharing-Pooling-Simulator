@@ -17,20 +17,14 @@ class Central_Agent(object):
 
     def get_match_commands(self, current_time, vehicles, requests):
         matching_commands = []
-<<<<<<< HEAD
         num_matched = 0
-=======
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         if len(requests) > 0:
             if FLAGS.enable_pooling:
                 matching_commands = self.matching_policy.match_RS(current_time, vehicles, requests)
             else:
                 matching_commands = self.matching_policy.match(current_time, vehicles, requests)
 
-<<<<<<< HEAD
             num_matched = len(matching_commands)
-=======
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
             updated_commands = self.init_price(matching_commands)
 
             final_commands = []
@@ -53,10 +47,6 @@ class Central_Agent(object):
                     V_price[command["vehicle_id"]].append(command["init_price"])
                     V_dist[command["vehicle_id"]].append(command["distance"])
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
                 for k in V.keys():
                     # print(k)
                     new_command = dict()
@@ -91,11 +81,7 @@ class Central_Agent(object):
             # print(final_commands)
         else:
             return [], vehicles
-<<<<<<< HEAD
         return final_commands, vehicles, num_matched
-=======
-        return final_commands, vehicles
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
 
 
     def update_vehicles(self, vehicles, commands):

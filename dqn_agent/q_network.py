@@ -35,11 +35,7 @@ class DeepQNetwork(object):
     # Restore the saved network to use for pretrain
     def load_network(self, network_path):
         # print("Net:", network_path)
-<<<<<<< HEAD
         self.saver.restore(self.sess, "/Users/mwadea/Documents/RideSharing/logs/tmp/networks/model-10000")
-=======
-        self.saver.restore(self.sess, "C:/Users/17657/PycharmProjects/Deep_Pool/logs/tmp/networks/model-19000")
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
         # self.saver.restore(self.sess, network_path)
 
         print('Successfully loaded: ' + network_path)

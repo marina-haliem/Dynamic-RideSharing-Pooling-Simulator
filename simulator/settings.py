@@ -35,11 +35,7 @@ flags.DEFINE_integer('days', 7, "simulation days")
 
 flags.DEFINE_integer('n_diffusions', 3, "number of diffusion convolution")
 flags.DEFINE_integer('batch_size', 128, "number of samples in a batch for SGD")
-<<<<<<< HEAD
 flags.DEFINE_string('tag', 'DARM', "tag used to identify logs")
-=======
-flags.DEFINE_string('tag', 'test', "tag used to identify logs")
->>>>>>> 7943a031f5efeff4dd64ab2a168c21f9bdbe1074
 flags.DEFINE_boolean('log_vehicle', False, "whether to log vehicle states")
 flags.DEFINE_boolean('use_osrm', False, "whether to use OSRM")
 flags.DEFINE_boolean('average', False, "whether to use diffusion filter or average filter")
