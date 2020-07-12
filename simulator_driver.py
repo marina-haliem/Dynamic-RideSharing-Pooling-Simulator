@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0, '/Users/mwadea/Documents/RideSharing/')
+sys.path.insert(0, '/Users/mwadea/Documents/Dynamic_Matching_RS/')
 
 import os
 import pandas as pd
