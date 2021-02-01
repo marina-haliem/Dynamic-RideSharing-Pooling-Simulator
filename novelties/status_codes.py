@@ -1,0 +1,13 @@
+# Customer States
+C_CALLING = 0
+C_WAITING = 1
+C_IN_VEHICLE = 2
+C_ARRIVED = 3
+C_DISAPPEARED = 4
+
+# Vehicle States
+V_IDLE = 0
+V_CRUISING = 1
+V_OCCUPIED = 2
+V_ASSIGNED = 3
+V_OFF_DUTY = 4

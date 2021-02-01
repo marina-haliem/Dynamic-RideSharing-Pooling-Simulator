@@ -1,0 +1,92 @@
+---
+version: 1
+disable_existing_loggers: False
+formatters:
+    simple:
+        format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    raw:
+        format: "%(message)s"
+
+
+handlers:
+    console:
+        class: logging.StreamHandler
+        level: DEBUG
+        formatter: simple
+        stream: ext://sys.stdout
+
+    error_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: ERROR
+        formatter: simple
+        filename: logs/tmp/sim/errors.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    vehicle_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: raw
+        filename: logs/tmp/sim/vehicle.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 100
+        encoding: utf8
+
+    customer_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: raw
+        filename: logs/tmp/sim/customer.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    summary_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: raw
+        filename: logs/tmp/sim/summary.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+    score_file_handler:
+        class: logging.handlers.RotatingFileHandler
+        level: INFO
+        formatter: raw
+        filename: logs/tmp/sim/score.log
+        maxBytes: 10485760 # 10MB
+        backupCount: 20
+        encoding: utf8
+
+loggers:
+    vehicle:
+        level: INFO
+        handlers: [vehicle_file_handler]
+        propagate: no
+
+    customer:
+        level: INFO
+        handlers: [customer_file_handler]
+        propagate: no
+
+    summary:
+        level: INFO
+        handlers: [summary_file_handler]
+        propagate: no
+
+#    avg_summary:
+#        level: INFO
+#        handlers: [avg_summary_file_handler]
+#        propagate: no
+
+
+    score:
+        level: INFO
+        handlers: [score_file_handler]
+        propagate: no
+
+root:
+    level: INFO
+    handlers: [console, error_file_handler]
