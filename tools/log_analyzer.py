@@ -217,52 +217,10 @@ class LogAnalyzer(object):
             days = md.DayLocator()
             hrs = md.HourLocator()
             xfmt = md.DateFormatter('| %a |')
-
-<<<<<<< HEAD
             plt.subplot(131)
             # plt.subplot(len(paths), 3, +i * 2 + 1)
 
             plt.plot(summary.t, summary.n_accepted_commands, label="Accepted", alpha=0.7)
-=======
-            if i == 0:
-                l = "!DS !RS !PS GM"
-                l2 = "DARM + DPRS"
-            elif i == 1:
-                l = "DS RS PS GM"
-                l2 = "DS RS PS GM"
-            elif i == 2:
-                l = "DS RS !PS GM"
-                l2 = "DS RS !PS GM"
-            elif i == 3:
-                l = "DS !RS !PS GM"
-                l2 = "DS !RS !PS GM"
-            elif i == 4:
-                l = "DARM + DPRS"
-                l2 = "!DS !RS !PS GM"
-            elif i == 5:
-                l = "!DS RS !PS GM"
-                l2 = "!DS RS !PS GM"
-
-            plt.subplot(131)
-            # plt.subplot(len(paths), 3, +i * 2 + 1)
-            # print(summary.t)
-            plt.plot(summary.t, summary.n_accepted_commands, label=l)
-
-            # plt.plot(
-            #     summary.t, summary.n_rejected_requests, label="Reject", linestyle=":"
-            # )
-
-            # plt.plot(
-            #     summary.t,(summary.n_requests - summary.n_requests_assigned), label="Rejected by System", linestyle=":"
-            # )
-            #
-            # plt.plot(
-            #     summary.t, summary.n_rejected_requests - (summary.n_requests - summary.n_requests_assigned),
-            #     label="Rejected by Customers", linestyle=":"
-            # )
-            #
-            # plt.plot(summary.t, summary.n_accepted_commands, label="Accepted", alpha=0.7)
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
 
             plt.ylabel("# of accepted requests / hour")
             plt.title(labels[0])
@@ -290,17 +248,9 @@ class LogAnalyzer(object):
             plt.subplot(133)
             # plt.subplot(len(paths), 3, i * 2 + 2)
             plt.title(labels[2])
-<<<<<<< HEAD
 
             plt.plot(
-                summary.t, summary.n_vehicles_Occupied, label="Occupied", linestyle=":"
-            )
-=======
-            plt.plot(summary.t, summary.n_vehicles_Occupied, label=l2)
-            # plt.plot(
-            #     summary.t, summary.n_vehicles_Occupied, label="Occupied", linestyle=":"
-            # )
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
+                summary.t, summary.n_vehicles_Occupied, label="Occupied", linestyle=":")
             yfmt = tkr.FuncFormatter(self.numfmt)
             plt.gca().yaxis.set_major_formatter(yfmt)
             plt.ylabel("# of occupied vehicles (in 1000s) per hour")
@@ -319,7 +269,6 @@ class LogAnalyzer(object):
             #     plt.xticks([])
             # if i == 0:
             plt.legend(loc="lower right", framealpha = 0.7)
-<<<<<<< HEAD
             plt.subplot(132)
             # plt.subplot(len(paths), 3, i * 2 + 2)
             plt.title(labels[1])
@@ -327,16 +276,6 @@ class LogAnalyzer(object):
             plt.plot(
                 summary.t, (summary.n_requests - summary.n_accepted_commands), label="Reject", linestyle=":"
             )
-=======
-            # plt.savefig("./baselines/DARM/Occupied_OnDuty.png")
-            plt.subplot(132)
-            # plt.subplot(len(paths), 3, i * 2 + 2)
-            plt.title(labels[1])
-            plt.plot(summary.t, (summary.n_requests - summary.n_requests_assigned), label=l)
-            # plt.plot(
-            #     summary.t, summary.n_vehicles_Occupied, label="Occupied", linestyle=":"
-            # )
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
             # yfmt = tkr.FuncFormatter(self.numfmt)
             # plt.gca().yaxis.set_major_formatter(yfmt)
             plt.ylabel("# of rejected requests per hour")
@@ -359,10 +298,6 @@ class LogAnalyzer(object):
             # plt.ylim([0, 450])
             # plt.ylabel("waiting time (s)")
             # plt.xticks(rotation=25)
-<<<<<<< HEAD
-=======
-            # plt.savefig("Occupied_OnDuty.png")
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
         # fig, ax = plt.subplots(5, sharex=True, squeeze=True)
         # for a in ax:
         #     print(a.get_xticklabels())

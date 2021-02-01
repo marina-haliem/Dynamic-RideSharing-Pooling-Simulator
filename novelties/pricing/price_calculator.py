@@ -16,11 +16,7 @@ def calculate_price(dist, wait_time, mileage, price_per_travel_m, price_per_wait
     if wait_time <= 0:
         wait_time = 3600
     if wait_time > 99999:
-<<<<<<< HEAD
         wait_time = 99999999
-=======
-        wait_time = 999
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
     if dist < 10:
         dist = 1000
 
@@ -39,8 +35,5 @@ def calculate_price(dist, wait_time, mileage, price_per_travel_m, price_per_wait
 # WAIT_COST = 0.05
 # HOP_REWARD = 3.5
 # MIN_TRIPTIME = 1.0 # in meters
-<<<<<<< HEAD
 # ASSIGNMENT_SPEED = 50 # km/h (grand circle distance)
-=======
-# ASSIGNMENT_SPEED = 50 # km/h (grand circle distance)
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
+

@@ -77,39 +77,8 @@ class Occupied(VehicleBehavior):
             customer = simulator.models.customer.customer_repository.CustomerRepository.get(id)
             if vehicle.pickup_flags.pop(0) == 1:
                 # print(vehicle.get_id(), "Occupied -> Pickup")
-<<<<<<< HEAD
-                if vehicle.get_location() != customer.get_origin():
-                    # Maps to the same location on map, just different GPS locations
-                    # vx, vy = mesh.convert_lonlat_to_xy(vehicle.get_location()[1], vehicle.get_location()[0])
-                    # cx, cy = mesh.convert_lonlat_to_xy(customer.get_origin()[1], customer.get_origin()[0])
-                    # print("V_Loc: ", (vx, vy), "C_Loc: ", (cx, cy))
-                    # print("Distance: ", geoutils.great_circle_distance(vehicle.get_location()[0],
-                    #                                                    vehicle.get_location()[1],
-                    #                                                    customer.get_origin()[0], customer.get_origin()[1]))
-
-                    vehicle.state.lat, vehicle.state.lon = customer.get_origin()
                 vehicle.pickup(customer)  # At pickup, make the drop off plan (who gets dropped off first)
             else:
-                # print(vehicle.get_id(), "Occupied -> Dropoff")
-                if vehicle.get_location() != customer.get_destination():
-                    # Maps tp the same location on map, just different GPS locations
-                    # vx, vy = mesh.convert_lonlat_to_xy(vehicle.get_location()[1], vehicle.get_location()[0])
-                    # cx, cy = mesh.convert_lonlat_to_xy(customer.get_destination()[1], customer.get_destination()[0])
-                    # print("V_Loc: ", (vx, vy), "C_Loc: ", (cx, cy))
-                    # print("Distance: ", geoutils.great_circle_distance(vehicle.get_location()[0],
-                    #                                                    vehicle.get_location()[1],
-                    #                                                    customer.get_destination()[0], customer.get_destination()[1]))
-                    # r = vehicle.routing_engine.route_time([(vehicle.get_location(), vehicle.nxt_stop)])
-                    # rt, t = r[0]
-                    # print("Extra: ", t, rt)
-
-                    vehicle.state.lat, vehicle.state.lon = customer.get_destination()
-=======
-                
-                vehicle.pickup(customer)  # At pickup, make the drop off plan (who gets dropped off first)
-            else:
-                
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
                 vehicle.dropoff(customer)
             # env.models.customer.customer_repository.CustomerRepository.delete(customer.get_id())
 
@@ -146,33 +115,8 @@ class Assigned(VehicleBehavior):
             # print(vehicle.pickup_flags)
             # print(customer.get_id(), customer.get_origin())
             if vehicle.pickup_flags.pop(0) == 1:
-<<<<<<< HEAD
-                # print(vehicle.get_id(), "Assigned -> Pickup")
-                if vehicle.get_location() != customer.get_origin():
-                    # Maps tp the same location on map, just different GPS locations
-                    # vx, vy = mesh.convert_lonlat_to_xy(vehicle.get_location()[1], vehicle.get_location()[0])
-                    # cx, cy = mesh.convert_lonlat_to_xy(customer.get_origin()[1], customer.get_origin()[0])
-                    # print("V_Loc: ", (vx, vy), "C_Loc: ", (cx, cy))
-                    # print("Distance: ", geoutils.great_circle_distance(vehicle.get_location()[0],
-                    #                                                    vehicle.get_location()[1],
-                    #                                                    customer.get_origin()[0], customer.get_origin()[1]))
-                    # r = vehicle.routing_engine.route_time([(vehicle.get_location(), vehicle.nxt_stop)])
-                    # rt, t = r[0]
-                    # print("Extra: ", t, rt)
-                    vehicle.state.lat, vehicle.state.lon = customer.get_origin()
                 vehicle.pickup(customer)    # At pickup, make the drop off plan (who gets dropped off first)
             else:
-                # print("Assigned -> NEVER!!")
-                # vehicle.change_to_occupied()
-                # print(vehicle.get_id(), "Assigned -> Dropoff")
-                if vehicle.get_location() != customer.get_destination():
-                    vehicle.state.lat, vehicle.state.lon = customer.get_destination()
-=======
-                
-                vehicle.pickup(customer)    # At pickup, make the drop off plan (who gets dropped off first)
-            else:
-              
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
                 vehicle.dropoff(customer)
 
             # else:

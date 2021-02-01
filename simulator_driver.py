@@ -1,9 +1,6 @@
 import sys
-<<<<<<< HEAD
-sys.path.insert(0, '/Users/mwadea/Documents/RideSharing/')
-=======
 sys.path.insert(0, '/Users/mwadea/Documents/Dynamic_Matching_RS/')
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
+
 
 import os
 import pandas as pd
@@ -294,8 +291,5 @@ if __name__ == '__main__':
 
     if FLAGS.train:
         print("Dumping experience memory as pickle...")
-<<<<<<< HEAD
         dispatch_policy.dump_experience_memory()
-=======
-        dispatch_policy.dump_experience_memory()
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
+

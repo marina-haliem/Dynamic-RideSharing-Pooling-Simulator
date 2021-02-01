@@ -135,13 +135,6 @@ class Vehicle(object):
     def pickup(self, customer):
         # print("At Pickup!", self.get_location(), " -> ", customer.get_origin())
         # print(self.get_id(), "Pickup: ", self.current_plan, self.ordered_pickups_dropoffs_ids)
-<<<<<<< HEAD
-        assert self.get_location() == customer.get_origin()
-=======
-        # assert self.get_location() == customer.get_origin()
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
-        # if not FLAGS.enable_pooling:
-            # print("Pickup, not pooling!")
         customer.ride_on()
         # customer_id = customer.get_id()
         # self.__reset_plan() # For now we don't consider routes of occupied trip
@@ -198,11 +191,6 @@ class Vehicle(object):
         # lenC = len(self.onboard_customers)
         # print("At Dropoff!", self.get_location(), " -> ", customer.get_destination())
         # print(self.get_id(), "Dropoff", self.current_plan, self.ordered_pickups_dropoffs_ids)
-<<<<<<< HEAD
-        assert self.get_location() == customer.get_destination()
-=======
-        # assert self.get_location() == customer.get_destination()
->>>>>>> da95b05cf1d04ed6fbad1f7b86b8681603de7452
 
         self.onboard_customers.remove(customer)
         customer.get_off()
