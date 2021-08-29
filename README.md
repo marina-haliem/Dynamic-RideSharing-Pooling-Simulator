@@ -1,5 +1,9 @@
 # A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching using Deep Reinforcement Learning
-@article{haliem2020distributed, title={A distributed model-free ride-sharing approach for joint matching, pricing, and dispatching using deep reinforcement learning}, author={Haliem, Marina and Mani, Ganapathy and Aggarwal, Vaneet and Bhargava, Bharat}, journal={arXiv preprint arXiv:2010.01755}, year={2020} }
+@ARTICLE{9507388,
+  author={Haliem, Marina and Mani, Ganapathy and Aggarwal, Vaneet and Bhargava, Bharat},
+  journal={IEEE Transactions on Intelligent Transportation Systems}, 
+  title={A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching Using Deep Reinforcement Learning}, 
+  year={2021}, pages={1-12}, doi={10.1109/TITS.2021.3096537}}
 
 ## These are the steps to generate the data files that serve as our dataset. These are already generated and provided @:
 
