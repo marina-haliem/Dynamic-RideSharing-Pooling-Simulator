@@ -70,8 +70,9 @@ This variable should be set to False in the testing mode.
 	import sys
 	sys.path.insert(0, '..../Dynamic-RideSharing-Pooling-Simulator/')
 Then, run this file:
-	```commandline
-	python simulator_driver.py
+```commandline
+python simulator_driver.py
+```
 	```
 
 ## Data Generation
