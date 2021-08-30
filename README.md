@@ -5,7 +5,7 @@
   title={A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching Using Deep Reinforcement Learning}, 
   year={2021}, pages={1-12}, doi={10.1109/TITS.2021.3096537}}
   
-Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "A Simulator for Ride-sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching", Under Review at Journal of Machine Learning Research (JMLR).
+Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dynamic Ride-Sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching", Under Review at Journal of Machine Learning Research (JMLR).
 
 ## Simulator Documentation and Flexibilities
 This project is in python 3.7 and tesnorflow 2.0
