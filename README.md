@@ -8,7 +8,7 @@
 Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dynamic Ride-Sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching", Under Review at Journal of Machine Learning Research (JMLR).
 
 ## Simulator Documentation and Flexibilities
-This project is in python 3.7 and tesnorflow 2.0
+This project is in python 3.7 and Tesnorflow 1.15.0
 
 ## Simulator Setup and Flexibilities
 First step is set some variables the path to the sqlite database in config/settings as db_dir = "data/db.sqlite3". Also, set the path to the directory to which logs should be stored as DEFAULT_LOG_DIR = "logs/tmp".  
@@ -65,6 +65,14 @@ The customer-related events are being logged by default.
 ### 9. Switching between training and testing modes:
 	flags.DEFINE_boolean('train', True, "run training dqn_agent network."). 
 This variable should be set to False in the testing mode.
+
+### 10. Finally, after setting all releveant paths, add the full path to the repo directory in simulator_driver.py:
+	import sys
+	sys.path.insert(0, '..../Dynamic-RideSharing-Pooling-Simulator/')
+Then, run this file:
+	```commandline
+	python simulator_driver.py
+	```
 
 ## Data Generation
 The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/projects/ridesharing/files, load them into a directory, and set the DATA_DIR variable in config/settings.py
@@ -142,6 +150,6 @@ Marina Haliem, Ganapathy Mani, Vaneet Aggarwal, Bharat Bhargava, "A Distributed 
 
 Abubakr Al-Abbasi, Arnob Ghosh, and Vaneet Aggarwal, "DeepPool: Distributed Model-free Algorithm for Ride-sharing using Deep Reinforcement Learning," IEEE Transactions on Intelligent Transportation Systems, vol. 20, no. 2, pp. 4714-4727, Dec 2019. @article{al2019deeppool, title={Deeppool: Distributed model-free algorithm for ride-sharing using deep reinforcement learning}, author={Al-Abbasi, Abubakr O and Ghosh, Arnob and Aggarwal, Vaneet}, journal={IEEE Transactions on Intelligent Transportation Systems}, volume={20}, number={12}, pages={4714--4727}, year={2019}, publisher={IEEE} }
 
-A. Singh, A. Alabbasi, and V. Aggarwal, "A distributed model-free algorithm for multi-hop ride-sharing using deep reinforcement learning," arXiv preprint arXiv:1910.14002, Oct 2019 (also in NeurIPS Workshop 2019). @inproceedings{singh2019reinforcement, title={A reinforcement learning based algorithm for multi-hop ride-sharing: Model-free approach}, author={Singh, Ashutosh and Al-Abbasi, AO and Aggarwal, Vaneet}, booktitle={Neural Information Processing Systems (Neurips) Workshop}, year={2019} } @article{singh2019distributed, title={A Distributed Model-Free Algorithm for Multi-hop Ride-sharing using Deep Reinforcement Learning}, author={Singh, Ashutosh and Alabbasi, Abubakr and Aggarwal, Vaneet}, journal={arXiv preprint arXiv:1910.14002}, year={2019} }
+A. Singh, A. Alabbasi, and V. Aggarwal, "A distributed model-free algorithm for multi-hop ride-sharing using deep reinforcement learning," IEEE Transactions on Intelligent Transportation Systems, Oct 2019 (also in NeurIPS Workshop 2019). @ARTICLE{9477304, author={Singh, Ashutosh and Al-Abbasi, Abubakr O. and Aggarwal, Vaneet}, journal={IEEE Transactions on Intelligent Transportation Systems}, title={A Distributed Model-Free Algorithm for Multi-Hop Ride-Sharing Using Deep Reinforcement Learning}, year={2021}, pages={1-11},doi={10.1109/TITS.2021.3083740}}
 
 T. Oda and C. Joe-Wong, "Movi: A model-free approach to dynamic fleet management," IEEE INFOCOM 2018. (Their code is available at https://github.com/misteroda/FleetAI ) @inproceedings{oda2018movi, title={MOVI: A model-free approach to dynamic fleet management}, author={Oda, Takuma and Joe-Wong, Carlee}, booktitle={IEEE INFOCOM 2018-IEEE Conference on Computer Communications}, pages={2708--2716}, year={2018}, organization={IEEE} }
