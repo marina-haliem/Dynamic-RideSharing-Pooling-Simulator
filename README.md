@@ -73,7 +73,6 @@ Then, run this file:
 ```commandline
 python simulator_driver.py
 ```
-	```
 
 ## Data Generation
 The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/projects/ridesharing/files, load them into a directory, and set the DATA_DIR variable in config/settings.py
