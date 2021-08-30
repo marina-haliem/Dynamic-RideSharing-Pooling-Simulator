@@ -21,7 +21,8 @@ After that, there is a number of variables in simulator/settings.py that provide
 	flags.DEFINE_boolean('enable_pooling', True, "Enable RideSharing/CarPooling")
 	
 ### 2. Whether to use our pricing benchmark: 
-	flags.DEFINE_boolean('enable_pricing', True, "Enable Pricing Novelty"), if this is set to False, the simulator will default to the Pooling Pricing explained in our manuscript.
+	flags.DEFINE_boolean('enable_pricing', True, "Enable Pricing Novelty")
+If this is set to False, the simulator will default to the Pooling Pricing explained in our manuscript.
 	
 ### 3. Set the number of vehicles to be involved in the simulation: 
 	flags.DEFINE_integer('vehicles', 8000, "number of vehicles")
@@ -31,7 +32,8 @@ After that, there is a number of variables in simulator/settings.py that provide
 	flags.DEFINE_integer('dqn_vehicles', 8000, "number of vehicles using dqn agent")
 	
 ### 5. The user can also choose to log the events associated with vehicles or not using:  
-	flags.DEFINE_boolean('log_vehicle', False, "whether to log vehicle states"). The customer-related events are being logged by default.
+	flags.DEFINE_boolean('log_vehicle', False, "whether to log vehicle states"). 
+The customer-related events are being logged by default.
 	
 ### 6. There is also multiple variables that are related to the DQN policy as well as the training hyper-parameters such as:
 	MAX_MEMORY_SIZE 	  		# Number of replay memory the dummy_agent uses for training.
@@ -61,12 +63,11 @@ After that, there is a number of variables in simulator/settings.py that provide
 		MAP_HEIGHT = int(LAT_WIDTH / DELTA_LAT) + 1
 		
 ### 9. Switching between training and testing modes:
-flags.DEFINE_boolean('train', True, "run training dqn_agent network."). This variable should be set to False in the testing mode.
+	flags.DEFINE_boolean('train', True, "run training dqn_agent network."). 
+This variable should be set to False in the testing mode.
 
 ## Data Generation
 The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/projects/ridesharing/files, load them into a directory, and set the DATA_DIR variable in config/settings.py
-
-Below you will find step-by-step instructions to set up the NYC taxi simulation using 2016-05 trips for training and 2016-06 trips for evaluation.
 
 Below you will find step-by-step instructions to set up the NYC taxi simulation using 2016-05 trips for training and 2016-06 trips for evaluation.
 ### 1. Download OSM Data
