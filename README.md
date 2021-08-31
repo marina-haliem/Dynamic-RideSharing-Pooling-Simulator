@@ -75,7 +75,7 @@ python simulator_driver.py
 ```
 
 ## Data Generation
-The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/projects/ridesharing/files, load them into a directory, and set the DATA_DIR variable in config/settings.py
+The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py
 
 Below you will find step-by-step instructions to set up the NYC taxi simulation using 2016-05 trips for training and 2016-06 trips for evaluation.
 ### 1. Download OSM Data
