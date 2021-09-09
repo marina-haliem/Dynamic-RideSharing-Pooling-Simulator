@@ -1,11 +1,6 @@
-# A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching using Deep Reinforcement Learning
-@ARTICLE{9507388,
-  author={Haliem, Marina and Mani, Ganapathy and Aggarwal, Vaneet and Bhargava, Bharat},
-  journal={IEEE Transactions on Intelligent Transportation Systems}, 
-  title={A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching Using Deep Reinforcement Learning}, 
-  year={2021}, pages={1-12}, doi={10.1109/TITS.2021.3096537}}
-  
-Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dynamic Ride-Sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching", Under Review at Journal of Machine Learning Research (JMLR).
+# DRSP-Sim: A Simulator for Dynamic Ride-Sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching
+
+Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dynamic Ride-Sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching", Under Review at Journal of Open Source Software (JOSS).
 
 ## Simulator Documentation and Flexibilities
 This project is in python 3.7 and Tesnorflow 1.15.0
@@ -141,6 +136,8 @@ You can find simulation setting files in `src/config/settings` and `src/simulato
 ## © CLAN Labs, Purdue.
 
 ## Please cite the following papers if using any part of the code:
+
+Marina Haliem, Vaneet Aggarwal, and Bharat K. Bhargava, "A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching Using Deep Reinforcement Learning", EEE Transactions on Intelligent Transportation Systems. @ARTICLE{9507388, author={Haliem, Marina and Mani, Ganapathy and Aggarwal, Vaneet and Bhargava, Bharat}, journal={IEEE Transactions on Intelligent Transportation Systems}, title={A Distributed Model-Free Ride-Sharing Approach for Joint Matching, Pricing, and Dispatching Using Deep Reinforcement Learning}, year={2021}, pages={1-12}, doi={10.1109/TITS.2021.3096537}}
 
 Marina Haliem, Vaneet Aggarwal, and Bharat K. Bhargava, "Adapool:  An adaptive model-free ride-sharing approach for dispatching using deep reinforcement learning", In BuildSys’20. @inproceedings{HaliemAB20, author    = {Marina Haliem andvVaneet Aggarwal andvBharat K. Bhargava}, title = {AdaPool: An Adaptive Model-Free Ride-Sharing Approach for Dispatching using Deep Reinforcement Learning}, booktitle = {BuildSys '20: The 7th {ACM} International Conference on Systems for Energy Efficient Buildings, Cities, and Transportation, Virtual Event, Japan, November 18-20, 2020}, pages = {304--305}, publisher = {{ACM}}, year = {2020}, url = {https://doi.org/10.1145/3408308.3431114}, doi = {10.1145/3408308.3431114}}
 
