@@ -6,13 +6,13 @@ tags:
   - Shared Mobility
 authors:
   - name: Marina Haliem
-    orcid: 0000-0003-0872-7098
+    orcid: 0000-0002-9782-6591
     affiliation: 1
   - name: Vaneet Aggarwal
-    orcid: 0000-0003-0872-7098
+    orcid: 0000-0001-9131-4723
     affiliation: 1
   - name: Bharat Bhargava
-    orcid: 0000-0003-0872-7098
+    orcid: 0000-0003-3803-8672
     affiliation: 1
 affiliations:
  - name: Purdue University, West Lafayette, IN
@@ -27,9 +27,9 @@ Ridesharing is an emerging mode of transportation currently having a deep impact
 
 # Statement of need
 
-Ride-Sharing (RS) has the potential of transforming urban mobility by providing personal convenience to each customer by accommodating their unique preferences. However, real-time evaluation of various ridesharing algorithms integrated together has been a real challenge due to the lack of a complete simulator that can support all the sub-problems at the same time. Vehicle-customer matching [@tafreshian2020trip; @alonso2017demand], vehicle route-planning [@MOLENBRUCH201758; @schonberger2017scheduling], ride pricing \citep{zhang2020pricing} and vehicle dispatching [@deep_pool; @fleet_oda] are examples of the RS sub-problems that has been widely studied in literature; however, they have been studied separately or in combination of two. We present the first RS simulator that integrates all of these together, provides a baseline for each, and allows developers to plug-and-play algorithms to tackle any of the sub-problems while defaulting the rest to the provided benchmark. This, in turn, will greatly facilitate cross-study evaluations of any existing ridesharing algorithms, while providing guidance for future research.
+Ride-Sharing (RS) has the potential of transforming urban mobility by providing personal convenience to each customer by accommodating their unique preferences. However, real-time evaluation of various ridesharing algorithms integrated together has been a real challenge due to the lack of a complete simulator that can support all the sub-problems at the same time. Vehicle-customer matching [@tafreshian2020trip; @alonso2017demand], vehicle route-planning [@MOLENBRUCH201758; @schonberger2017scheduling], ride pricing [@zhang2020pricing] and vehicle dispatching [@deep_pool; @fleet_oda] are examples of the RS sub-problems that has been widely studied in literature; however, they have been studied separately or in combination of two. We present the first RS simulator that integrates all of these together, provides a baseline for each, and allows developers to plug-and-play algorithms to tackle any of the sub-problems while defaulting the rest to the provided benchmark. This, in turn, will greatly facilitate cross-study evaluations of any existing ridesharing algorithms, while providing guidance for future research.
 
-#Simulator Architecture
+# Simulator Architecture
 
 ![Overall architecture of the simulator.\label{arch}](Architecture00.pdf){ width=45% }
 Existing simulators [@abs-1710-05465; @article19] either don't support pooling, lack the integration of the RS sub-problems, or generate artificial data and lack the support to real-world data and city maps. In contrast, DRSP-Sim combines the RS sub-problems and uses real-world data and maps. We construct a region graph of the New York Metropolitan area obtained from Open-StreetMap [@OSM], along with a public dataset of taxi trips in NY (15 million trips) [@10].
@@ -40,5 +40,7 @@ Here, we explain the work flow of DRSP-Sim using our benchmark algorithms provid
 Using the demand-aware pricing provided by our simulator [@haliem2020distributed], vehicles weigh their utility based on the potential hotspot locations, and propose new pricing for the customer. 
 Figure \autoref{modular} shows the file organization of our code base which makes it easy to navigate through the simulator. We provide a \textit{configuration} module which allows the user to specify which features to enable (e.g., pooling, pricing, dispatching, matching) as well as which algorithms to use for each. Besides, the simulator allows a \textit{Logging} service that logs every event that takes place during the simulation runtime (e.g, customer pickup/dropoff).
 
+# Conclusion
+In this work, we provide DRSP-Sim: a comprehensive simulator for the ride-sharing service with flexibilities of matching, dispatching, pricing, demand prediction, and routing, where the research on any component can be tested with the overall system. The simulator uses the NY city map, and the NYC taxi-cab data set retrieved from [@10]. DRSP-Sim can run with different datasets, as well as help evaluating and testing of improved algorithms. The simulator has been used as a base for multiple analysis for ride-sharing evaluations [@manchella2020flexpool; @singh2019distributed; @HaliemAB20; @PassGoodPool], which exploit multi-hop passenger transportation, adaptivity in algorithms based on diurnal demand patterns, and combined goods and passenger transportation. 
 
 # References
