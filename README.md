@@ -94,19 +94,21 @@ In addition, a tag can also be set to distihguish logs related to different expe
 	flags.DEFINE_string('tag', 'DARM', "tag used to identify logs")
 	
 After the logs has been stored during training or testing, they can be parsed to generate plots of the metrices of interest:
-	```commandline
+```commandline
 	python parse_results.py
-	```
-A sample output is shown here:
-<h1 align="center">Comparing two algorithms</h1>
+```
+This functionality is pretty flexible too, this file invokes the plotting functions in tools/log_analyzer.py, which could be altered as needed to monitor any metrics that might be relevant to the experiment.
 
-<div align="center"> <img src="./sample_plots/summary_compare.png" height="150"> </div>
+A sample output is shown here:
+<h1 align="center">Comparing two algorithms for the duration of simulation</h1>
+
+<div align="center"> <img src="./sample_plots/summary_compare.png" height="250"> </div>
 
 <hr>
 
-<h1 align="center">Summary of Metrics for the simulator duration</h1>
+<h1 align="center">Summary of Metrics for the simulation duration</h1>
 
-<div align="center"> <img src="./sample_plots/RS_Metrics.png" height="150"> </div>
+<div align="center"> <img src="./sample_plots/RS_Metrics.png" height="200"> </div>
 
 
 
