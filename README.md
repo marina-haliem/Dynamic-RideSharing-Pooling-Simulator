@@ -3,14 +3,21 @@
 Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dynamic Ride-Sharing with Pooling: Joint Matching,Pricing, Route Planning, and Dispatching", Under Review at Journal of Open Source Software (JOSS).
 
 ## Simulator Documentation and Flexibilities
-This project is in python 3.7 and Tesnorflow 1.15.0
+DRSP-Sim supports pooling, which allows vehicles to pickup more than one customer at the same time. This adds more complexities to the ridesharing scenario where the route planning needs to be optimized to accommodate all customers. Matching, pricing, and dispatching algorithms need to be devised such that they take pooling into consideration. This simulator (1) provides a real-time Dynamic RideSharing simulator with Pooling (DRSP-Sim) for evaluating ridesharing algorithms integrated into one simulator, and (2) provides benchmarks for vehicle-customer matching, route planning, pricing and dispatching to test a wide range of scenarios encountered in the real world. Our work enables real-time evaluations and provides guidance for designing and evaluating future ridesharing algorithms.
 
 ## Getting Started
-For development, we recommend using python 3.7, cloning the simulator and installing the development dependencies using:
+First, install Python 3.7. For development, we recommend cloning the simulator and installing the development dependencies using:
 
 git clone https://github.itap.purdue.edu/Clan-labs/Dynamic-RideSharing-Pooling-Simulator
 
 pip install -r requirements.txt
+
+## Contributions and Development 
+Contributions are always welcome! Please fork the repository and open a new pull request for any new features.
+
+## Issues and Support
+
+Please [file an issue on Github](https://github.com/marina-haliem/Dynamic-RideSharing-Pooling-Simulator/issues/new) if you run into any problems with the software.
 
 ## Simulator Setup and Flexibilities
 First step is set some variables the path to the sqlite database in config/settings as db_dir = "data/db.sqlite3". Also, set the path to the directory to which logs should be stored as DEFAULT_LOG_DIR = "logs/tmp".  
