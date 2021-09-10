@@ -87,6 +87,29 @@ Then, run this file:
 python simulator_driver.py
 ```
 
+## Post-Processing and Plot Generation
+The path to where logs will be stored can be set in config/seetings.py:
+	DEFAULT_LOG_DIR = "logs/tmp"
+In addition, a tag can also be set to distihguish logs related to different experiments in simulator/settings.py:
+	flags.DEFINE_string('tag', 'DARM', "tag used to identify logs")
+	
+After the logs has been stored during training or testing, they can be parsed to generate plots of the metrices of interest:
+	```commandline
+	python parse_results.py
+	```
+A sample output is shown here:
+<h1 align="center">Comparing two algorithms</h1>
+
+<div align="center"> <img src="./sample_plots/summary_compare.png" height="150"> </div>
+
+<hr>
+
+<h1 align="center">Summary of Metrics for the simulator duration</h1>
+
+<div align="center"> <img src="./sample_plots/RS_Metrics.png" height="150"> </div>
+
+
+
 ## Data Generation
 The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py
 
