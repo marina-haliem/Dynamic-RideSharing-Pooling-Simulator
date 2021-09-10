@@ -5,6 +5,13 @@ Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dyna
 ## Simulator Documentation and Flexibilities
 This project is in python 3.7 and Tesnorflow 1.15.0
 
+## Getting Started
+For development, we recommend using python 3.7, cloning the simulator and installing the development dependencies using:
+
+git clone https://github.itap.purdue.edu/Clan-labs/Dynamic-RideSharing-Pooling-Simulator
+
+pip install -r requirements.txt
+
 ## Simulator Setup and Flexibilities
 First step is set some variables the path to the sqlite database in config/settings as db_dir = "data/db.sqlite3". Also, set the path to the directory to which logs should be stored as DEFAULT_LOG_DIR = "logs/tmp".  
 
