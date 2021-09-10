@@ -42,7 +42,9 @@ If this is set to False, the simulator will default to the Pooling Pricing expla
 	
 ### 5. The user can also choose to log the events associated with vehicles or not using:  
 	flags.DEFINE_boolean('log_vehicle', False, "whether to log vehicle states"). 
-The customer-related events are being logged by default.
+The customer-related events are being logged by default. These logs can then be parsed to generate plots of the relevant metrics by running:
+	python parse_results.py
+This invokes the plotting functions in tools/log_analyzer.py 
 	
 ### 6. There is also multiple variables that are related to the DQN policy as well as the training hyper-parameters such as:
 	MAX_MEMORY_SIZE 	  		# Number of replay memory the dummy_agent uses for training.
