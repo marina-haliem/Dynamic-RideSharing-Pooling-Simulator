@@ -88,11 +88,11 @@ python simulator_driver.py
 ```
 
 ## Post-Processing and Plot Generation
-The path to where logs will be stored can be set in config/seetings.py:
+The path to where logs will be stored can be set in config/settings.py:
 	DEFAULT_LOG_DIR = "logs/tmp"
 
 In addition, a tag can also be set to distihguish logs related to different experiments in simulator/settings.py:
-	flags.DEFINE_string('tag', 'tmp', "tag used to identify logs")
+	flags.DEFINE_string('tag', 'tmp', "tag used to identify logs").
 	
 After the logs has been stored during training or testing, they can be parsed to generate plots of the metrices of interest:
 ```commandline
