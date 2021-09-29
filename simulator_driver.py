@@ -277,6 +277,7 @@ if __name__ == '__main__':
                     if len(dummy_v) > 0:
                         avg_profit_dummy = np.mean(list(v.earnings - v.cost for index, v in dummy_v.iterrows()))
                     else:
+                        avg_profit_dummy = 0
 
                     matchings = np.sum([len(command["customer_id"]) for command in m_commands])
                     # print("P: ", avg_earnings-avg_cost, " P-DQN: ", avg_profit_dqn, " P-D: ", avg_profit_dummy)
