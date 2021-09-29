@@ -1,5 +1,5 @@
-import sys
-sys.path.insert(0, '/Users/mwadea/Documents/Dynamic_Matching_RS/')
+#import sys
+#sys.path.insert(0, "/path/to/project")
 
 
 import os
@@ -218,7 +218,7 @@ if __name__ == '__main__':
                     Sim_experiment.simulator.dispatch_vehicles(all_commands)
 
                     if (num_matched == 0):
-                        print("ERR!", len(vehicles), len(requests), num_accepted, len(prev_rejected_req))
+                        # print("ERR!", len(vehicles), len(requests), num_accepted, len(prev_rejected_req))
                         continue
 
                     avg_cap = 0
@@ -269,8 +269,14 @@ if __name__ == '__main__':
                     avg_earnings = np.mean(list(v.earnings for index, v in net_v.iterrows()))
                     avg_cost = np.mean(list(v.cost for index, v in net_v.iterrows()))
 
-                    avg_profit_dqn = np.mean(list(v.earnings - v.cost for index, v in dqn_v.iterrows()))
-                    avg_profit_dummy = np.mean(list(v.earnings - v.cost for index, v in dummy_v.iterrows()))
+                    if len(dqn_v) > 0:
+                        avg_profit_dqn = np.mean(list(v.earnings - v.cost for index, v in dqn_v.iterrows()))
+                    else:
+                        avg_profit_dqn = 0
+
+                    if len(dummy_v) > 0:
+                        avg_profit_dummy = np.mean(list(v.earnings - v.cost for index, v in dummy_v.iterrows()))
+                    else:
 
                     matchings = np.sum([len(command["customer_id"]) for command in m_commands])
                     # print("P: ", avg_earnings-avg_cost, " P-DQN: ", avg_profit_dqn, " P-D: ", avg_profit_dummy)
