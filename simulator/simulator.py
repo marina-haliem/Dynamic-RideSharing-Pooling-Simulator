@@ -68,7 +68,7 @@ class Simulator(object):
             if vehicle.exit_market():
                 score = ','.join(map(str, [self.get_current_time(), vehicle.get_id(), vehicle.get_total_dist(),
                                            vehicle.compute_profit()] + vehicle.get_score()))
-                if vehicle.agent_type == agent_codes.dqn_agent:
+                if vehicle.state.agent_type == agent_codes.dqn_agent:
                     self.current_dqnV -= 1
                 else:
                     self.current_dummyV -= 1
