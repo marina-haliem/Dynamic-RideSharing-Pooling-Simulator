@@ -1,6 +1,6 @@
 import os
 # db_dir = "C:\\Users\\17657\\Desktop\\RideSharing_Pricing\\data\\db.sqlite3"
-db_dir = "/Users/mwadea/Documents/RideSharing/data/db.sqlite3"
+db_dir = "data/db.sqlite3"
 DB_HOST_PATH = ''.join(['sqlite:///', db_dir])
 
 OSRM_HOSTPORT = os.getenv("OSRM_HOSTPORT", "localhost:5000")
