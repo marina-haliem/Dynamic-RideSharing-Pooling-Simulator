@@ -16,7 +16,7 @@ Download the pre-processed data files directly from: https://purr.purdue.edu/pub
 
 For a quick start, you can set the number of simulation days to 1 to run only one day of simulation in simulator/settings.py:
 ```commandline
-	flags.DEFINE_integer('days', 3, "simulation days")
+	flags.DEFINE_integer('days', 1, "simulation days")
 ```
 
 ## Simulator Setup and Flexibilities
