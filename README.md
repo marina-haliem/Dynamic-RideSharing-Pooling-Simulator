@@ -12,12 +12,12 @@ git clone https://github.itap.purdue.edu/Clan-labs/Dynamic-RideSharing-Pooling-S
 
 pip install -r requirements.txt
 
-## Contributions and Development 
-Contributions are always welcome! Please fork the repository and open a new pull request for any new features.
+Download the pre-processed data files directly from: https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py to this directory. The steps to generate these files from scratch are also provided below.
 
-## Issues and Support
-
-Please [file an issue on Github](https://github.com/marina-haliem/Dynamic-RideSharing-Pooling-Simulator/issues/new) if you run into any problems with the software.
+For a quick start, you can set the number of simulation days to 1 to run only one day of simulation in simulator/settings.py:
+```commandline
+	flags.DEFINE_integer('days', 3, "simulation days")
+```
 
 ## Simulator Setup and Flexibilities
 First step is set some variables the path to the sqlite database in config/settings as db_dir = "data/db.sqlite3". Also, set the path to the directory to which logs should be stored as DEFAULT_LOG_DIR = "logs/tmp".  
@@ -113,7 +113,12 @@ A sample output is shown here:
 
 <div align="center"> <img src="./sample_plots/RS_Metrics.png" height="200"> </div>
 
+## Contributions and Development 
+Contributions are always welcome! Please fork the repository and open a new pull request for any new features.
 
+## Issues and Support
+
+Please [file an issue on Github](https://github.com/marina-haliem/Dynamic-RideSharing-Pooling-Simulator/issues/new) if you run into any problems with the software.
 
 ## Data Generation
 The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py
