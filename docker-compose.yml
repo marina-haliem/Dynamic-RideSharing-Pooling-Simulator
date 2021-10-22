@@ -1,0 +1,23 @@
+version: '3.1'
+
+services:
+  sim:
+    build: ./docker
+    environment:
+      OSRM_HOSTPORT: "osrm:5000"
+    volumes:
+      - ./src:/home/src
+      - ./bin:/home/bin
+      - ./data:/home/data
+      - ./logs:/home/logs
+    command: ./bin/run.sh
+    depends_on:
+      - osrm
+
+  osrm:
+    image: osrm/osrm-backend
+    volumes:
+      - ./osrm:/data
+    ports:
+      - "5000:5000"
+    command: osrm-routed --algorithm mld --verbosity error /data/NewYork.osrm
