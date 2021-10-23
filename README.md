@@ -100,7 +100,23 @@ After the logs has been stored during training or testing, they can be parsed to
 ```commandline
 	python parse_results.py
 ```
-This functionality is pretty flexible too, this file invokes the plotting functions in tools/log_analyzer.py, which could be altered as needed to monitor any metrics that might be relevant to the experiment.
+This functionality is pretty flexible too, this file invokes the plotting functions in tools/log_analyzer.py, which could be altered as needed to monitor any metrics that might be relevant to the experiment. By default this file will generate plots corresponding to the directory specified under 'config/settings.py' using the 'DEFAULT_LOG_DIR' parameter, where sim logs are present. If the user decides to comapre more than one experiment against each other, the paths to the additional experiments will need to be provided as well. This can be passed as a list of paths to the plot_summary() function as follows:
+```commandline
+    def plot_summary(self, paths, labels, plt):
+        """Plotting of experiment summaries
+        Args:
+            paths:      (list) List of paths of all experiments which are to be plotted.
+            labels:     (list) Names for each of the respective experiments.
+            plt:        (matplotlib.pyplot) matplotlib object to write the plot onto???
+        Returns:
+            plt:        (matplotlib.pyplot) The output plot.
+        """
+```
+which is called in parse_results.py as:
+```commandline
+summary_plots = l.plot_summary([DEFAULT_LOG_DIR], ["Number of Accepted Requests", "Average Travel Distance", "Occupancy Rate of Vehicles"], plt)
+```
+Note that these functionalities can be altered as needed to monitor any metrics that might be relevant to the experiment.
 
 A sample output is shown here:
 <h1 align="center">Comparing two algorithms for the duration of simulation</h1>
