@@ -9,13 +9,15 @@ from config import settings
 import matplotlib.dates as md
 import datetime as dt
 import matplotlib.ticker as tkr
+from config.settings import DEFAULT_LOG_DIR
 from matplotlib.ticker import MaxNLocator
+import numpy as np
 
-log_dir_path = "./baselines/DARM/sim/"
-vehicle_log_file = "vehicle.log"
-customer_log_file = "customer.log"
-score_log_file = "score.log"
-summary_log_file = "summary.log"
+log_dir_path = DEFAULT_LOG_DIR
+vehicle_log_file = "/sim/vehicle.log"
+customer_log_file = "/sim/customer.log"
+score_log_file = "/sim/score.log"
+summary_log_file = "/sim/summary.log"
 
 vehicle_log_cols = [
     "t",
@@ -40,7 +42,6 @@ vehicle_log_cols = [
     "mileage",
     "agent_type",
 ]
-
 
 customer_log_cols = ["t", "id", "status", "waiting_time"]
 
@@ -204,6 +205,10 @@ class LogAnalyzer(object):
         plt.subplots_adjust(wspace=0.2, hspace=0.4)
         for i, path in enumerate(paths):
             summary = self.load_summary_log(path)
+            if i == 0:
+                print("Size: ", len(summary))
+                summary = pd.concat([summary, summary])
+                print(len(summary))
             # print(summary)
             summary["t"] = (summary.t / 3600).astype(int) * 3600
             # summary["t"] = summary.t/60
@@ -217,12 +222,36 @@ class LogAnalyzer(object):
             days = md.DayLocator()
             hrs = md.HourLocator()
             xfmt = md.DateFormatter('| %a |')
+
+            # Labels to add to the legend for each algorithm to compare
+            if i == 0:
+                l = "DARM + DPRS"
+
             plt.subplot(131)
             # plt.subplot(len(paths), 3, +i * 2 + 1)
+            # print(summary.t)
+            summary['rate'] = summary.n_accepted_commands/summary.n_requests
+            plt.plot(summary.t, summary.n_accepted_commands, label=l)
+            
+            # if i == 0:
+            #     plt.plot(summary.t, summary.n_requests, linestyle=":")
 
-            plt.plot(summary.t, summary.n_accepted_commands, label="Accepted", alpha=0.7)
+            # plt.plot(
+            #     summary.t, summary.n_rejected_requests, label="Reject", linestyle=":"
+            # )
 
-            plt.ylabel("# of accepted requests / hour")
+            # plt.plot(
+            #     summary.t,(summary.n_requests - summary.n_requests_assigned), label="Rejected by System", linestyle=":"
+            # )
+            #
+            # plt.plot(
+            #     summary.t, summary.n_rejected_requests - (summary.n_requests - summary.n_requests_assigned),
+            #     label="Rejected by Customers", linestyle=":"
+            # )
+            #
+            # plt.plot(summary.t, summary.n_accepted_commands, label="Accepted", alpha=0.7)
+
+            plt.ylabel("Accept Rate / hour")
             plt.title(labels[0])
             # plt.xlabel("simulation time (yy-mm-dd hr:min:sec)")
             plt.xlabel("Simulation Time (hrs in days)")
@@ -234,23 +263,16 @@ class LogAnalyzer(object):
             # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
             ax.xaxis.set_minor_locator(hrs)
             ax.xaxis.set_major_formatter(xfmt)
-            # for a in ax:
-            #     plt.setp(a.get_xticklabels()[0], visible=False)
-            #     plt.setp(a.get_xticklabels()[-1], visible=False)
-
-            # if i != len(paths) - 1:
-            #     plt.xticks([])
-            # if i == 0:
             plt.legend(loc='lower right', framealpha = 0.7)
 
-            # plt.savefig("./baselines/DARM/Accepts_Rejects.png")
 
             plt.subplot(133)
             # plt.subplot(len(paths), 3, i * 2 + 2)
             plt.title(labels[2])
-
-            plt.plot(
-                summary.t, summary.n_vehicles_Occupied, label="Occupied", linestyle=":")
+            plt.plot(summary.t, summary.n_vehicles_Occupied, label=l)
+            # plt.plot(
+            #     summary.t, summary.n_vehicles_Occupied, label="Occupied", linestyle=":"
+            # )
             yfmt = tkr.FuncFormatter(self.numfmt)
             plt.gca().yaxis.set_major_formatter(yfmt)
             plt.ylabel("# of occupied vehicles (in 1000s) per hour")
@@ -269,17 +291,16 @@ class LogAnalyzer(object):
             #     plt.xticks([])
             # if i == 0:
             plt.legend(loc="lower right", framealpha = 0.7)
+
             plt.subplot(132)
             # plt.subplot(len(paths), 3, i * 2 + 2)
             plt.title(labels[1])
-
-            plt.plot(
-                summary.t, (summary.n_requests - summary.n_accepted_commands), label="Reject", linestyle=":"
-            )
-            # yfmt = tkr.FuncFormatter(self.numfmt)
-            # plt.gca().yaxis.set_major_formatter(yfmt)
-            plt.ylabel("# of rejected requests per hour")
-            # plt.ylabel("# of vehicles")
+            plt.plot(summary.t, summary.avg_total_dist, label=l)
+            # plt.plot(summary.t, (summary.n_requests - summary.n_requests_assigned), label=l)
+            # plt.plot(
+            #     summary.t, summary.n_vehicles_Occupied, label="Reject", linestyle=":"
+            # )
+            plt.ylabel("Avg. Travel Distance per vehicle per hour (in Km)")
             plt.xlabel("Simulation Time (hrs in days)")
             # plt.xlabel("simulation time (yy-mm-dd hh:min:sec)")
             plt.xticks(ha='left')
@@ -294,15 +315,6 @@ class LogAnalyzer(object):
             #     plt.xticks([])
             # if i == 0:
             plt.legend(loc="upper left", framealpha = 0.7)
-            # plt.plot(summary.t, summary.average_wt, alpha=1.0)
-            # plt.ylim([0, 450])
-            # plt.ylabel("waiting time (s)")
-            # plt.xticks(rotation=25)
-        # fig, ax = plt.subplots(5, sharex=True, squeeze=True)
-        # for a in ax:
-        #     print(a.get_xticklabels())
-        #     plt.setp(a.get_xticklabels()[0], visible=False)
-        #     plt.setp(a.get_xticklabels()[-1], visible=False)
         return plt
 
     def plot_metrics_ts(self, paths, labels, plt):
@@ -349,7 +361,6 @@ class LogAnalyzer(object):
 
             plt.subplot(151)
             plt.xlabel("Profit ($/h)")
-            # score.profit_per_hour /= 10
             plt.hist(
                 score.profit_per_hour, bins=100,
                 range=((score.profit_per_hour.min() + 50), score.profit_per_hour.max(
