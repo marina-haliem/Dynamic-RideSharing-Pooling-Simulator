@@ -16,6 +16,7 @@ class MatchingPolicy(object):
         return []
 
     def find_available_vehicles(self, vehicles):
+        # This function retrieves a list of idle vehicles to serve as candidates for upcoming rides.
         idle_vehicles = vehicles[
             (((vehicles.status == status_codes.V_IDLE) |
             (vehicles.status == status_codes.V_CRUISING)) &
@@ -28,7 +29,7 @@ class MatchingPolicy(object):
                 v_list.append(v)
         return pd.DataFrame(v_list)
 
-    # Craeting matching dictionary assciated with each vehicle ID
+    # Creating matching dictionary associated with each vehicle ID for a given trip paramteres.
     def create_matching_dict(self, vehicle_id, customer_id, duration, distance):
         match_dict = {}
         match_dict["vehicle_id"] = vehicle_id
@@ -38,6 +39,8 @@ class MatchingPolicy(object):
         return match_dict
 
     def find_available_vehicles_RS(self, vehicles):
+        # For the case when ridesharing is enabled, this function retrieves a list of idle vehicles as well as
+        # occupied vehicles that hasn't reached their maximum capacity as candidate vehicles for the upcoming rides.
         idle_vehicles = vehicles[
             (((vehicles.status == status_codes.V_IDLE) |
             (vehicles.status == status_codes.V_CRUISING)) &
@@ -60,7 +63,8 @@ class RoughMatchingPolicy(MatchingPolicy):
     def __init__(self, reject_distance=5000):
         self.reject_distance = reject_distance  # in meters
 
-    # Matching requests to the nearest available vehicle
+    # Matching requests to the nearest available vehicle (in the case of no ridesharing)
+    # This is done roughly according to this policy following only the great circle distance.
     def match(self, current_time, vehicles, requests):
         assignments = []
         vehicles = self.find_available_vehicles(vehicles)
@@ -98,15 +102,17 @@ class GreedyMatchingPolicy(MatchingPolicy):
 
 
     def get_coord(self, lon, lat):
+        # Given a GPS (Longtitude, Latitude), find the corresponding x,y on the discrete map (mesh).
         x, y = mesh.convert_lonlat_to_xy(lon, lat)
         return (int(x / self.k), int(y / self.k))
 
+    # To constraint the map within the specified width and height range.
     def coord_iter(self):
         for x in range(int(MAP_WIDTH / self.k)):
             for y in range(int(MAP_HEIGHT / self.k)):
                 yield (x, y)
 
-    # Candidate Vehicle IDs from the mesh
+    # Retrieves candidate Vehicle IDs from the mesh as long as they are within the max allowed distance.
     def find_candidates(self, coord, n_requests, V, reject_range):
         x, y = coord
         candidate_vids = V[(x, y)][:]
@@ -120,7 +126,7 @@ class GreedyMatchingPolicy(MatchingPolicy):
                     break
         return candidate_vids
 
-    # Returns list of assignments
+    # Returns list of assignments greedily using the min distance between vehicles and requests.
     def assign_nearest_vehicle(self, request_ids, vehicle_ids, T, dist):
         assignments = []
         for ri, rid in enumerate(request_ids):
@@ -141,7 +147,7 @@ class GreedyMatchingPolicy(MatchingPolicy):
             T[:, vi] = float('inf')
         return assignments
 
-    # Return list of candidate vehicle in order of the nearest to the request
+    # Return list of candidate vehicle in order of the nearest to the request.
     def filter_candidates(self, vehicles, requests):
         d = great_circle_distance(vehicles.lat.values, vehicles.lon.values,
                                   requests.origin_lat.mean(), requests.origin_lon.mean())
@@ -153,6 +159,8 @@ class GreedyMatchingPolicy(MatchingPolicy):
 
     def assign_nearest_vehicle_RideShare(self, request_ids, all_target_ridx, requestAssigned, vehicle_ids, vehicle_idx,
                                          T, TRR, TDD, dist, d_RR, d_DD):
+        # In the case when ridehsaring is enabled, this function assigns the nereast vehicle to the ride as long as it hasn't
+        # reached its maximum capacity. The vehicle will then reconsider the best route to accomodate all assigned rides.
         assignments = []
         # for ri, rid in enumerate(request_ids):
         # vi = T[ri,vehicle_idx].argmin()
@@ -229,6 +237,8 @@ class GreedyMatchingPolicy(MatchingPolicy):
                 dist[:, vi] = float('inf')
         return assignments
 
+    # Matching requests to the nearest available vehicle greedily (in the case of no ridesharing)
+    # This function follows the greedy policy, calculating distance according to the descretized map over OSRM.
     def match(self, current_time, vehicles, requests):
         # od_pairs = []
         match_list = []
@@ -256,8 +266,7 @@ class GreedyMatchingPolicy(MatchingPolicy):
             if not R[coord]:
                 continue
 
-            for i in range(int(np.ceil(len(R[coord]) / self.max_locations))):
-                #
+            for i in range(int(np.ceil(len(R[coord]) / self.max_locations)))
                 target_rids = R[coord][i * self.max_locations : (i + 1) * self.max_locations]
 
                 candidate_vids = self.find_candidates(coord, len(target_rids), V, reject_range)
@@ -286,6 +295,8 @@ class GreedyMatchingPolicy(MatchingPolicy):
         # print("Pairs: ", od_pairs)
         return match_list
 
+    # In the case when ridesharing is enabled, this function matches requests to the nearest available candidate
+    # vehicle as long as it hasn't reached maximum capacity, meaning one or more requests can be assigned to the same vehicle.
     def match_RS(self, current_time, vehicles, requests):
         # print("SA: Inside GreedyMatching Match ", "V:", len(vehicles), "R:", len(requests))
         commands = []
@@ -410,7 +421,7 @@ class GreedyMatchingPolicy(MatchingPolicy):
 
         return commands
 
-
+    # This function calculates the ETA (Estimated Time of Arrival) for each given origin and destination pair.
     def eta_matrix(self, origins_array, destins_array):
         destins = [(lat, lon) for lat, lon in destins_array.values]
         origins = [(lat, lon) for lat, lon in origins_array.values]
