@@ -16,6 +16,13 @@ class Central_Agent(object):
         self.routing_engine = RoutingEngine.create_engine()
 
     def get_match_commands(self, current_time, vehicles, requests):
+        # This function generates a list of matching commands, where each command is a dict of:
+        # vehicle id: ID of the matched vehicle
+        # Customer id: ID of the customer matched to this vehicle.
+        # duration: Expected time duration of this trip
+        # distance: Estimated distance (calculated by OSRM) for this trip.
+        # init_price: Estimated intial price for this trip (calculated by pricing module).
+        # This function returns the list of matching commands, list of matched vehicles, and number of matches.
         matching_commands = []
         num_matched = 0
         if len(requests) > 0:
@@ -85,6 +92,7 @@ class Central_Agent(object):
 
 
     def update_vehicles(self, vehicles, commands):
+        # This function updated the vehicle's status to assigned once it gets matched to a customer.
         vehicle_ids = [command["vehicle_id"] for command in commands]
         # v = vehicles[vehicles.status != status_codes.V_OCCUPIED]
         # for vid in vehicle_ids:
@@ -113,6 +121,8 @@ class Central_Agent(object):
 
 
     def init_price(self, match_commands):
+        # This function calls the pricing module to calculate an estimated initial price for each matching command,
+        # based on the origin-destination route, trip duration, mileage, gas price and driver's base rate.
         m_commands = []
         for c in match_commands:
             vehicle = VehicleRepository.get(c["vehicle_id"])
