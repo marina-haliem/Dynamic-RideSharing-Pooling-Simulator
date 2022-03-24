@@ -4,7 +4,10 @@ from common import geoutils, mesh
 from itertools import islice
 
 class PricingPolicy(object):
-# Vehicle utility function goes here
+    # Vehicle utility function
+    # For each ride, the vehicle decides whether to accept the base initial price, or to
+    # propose a different price based on a distance-based threshold and what the vehicle
+    # learnt about the supply-demand distribution over the city map.
     def propose_price(self, vehicle, price, request):
         if len(vehicle.q_action_dict) == 0:
             # print("NOT DISPATCHED BEFORE!")
