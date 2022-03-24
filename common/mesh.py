@@ -2,6 +2,7 @@ from config.settings import LON_WIDTH, LAT_WIDTH, MIN_LAT, MIN_LON, MAP_WIDTH, M
 import numpy as np
 
 def convert_lonlat_to_xy(lon, lat):
+    # Converts given (longtitude, latitude) GPS location to (x, y) location on the descretized map.
     x = (lon - MIN_LON) / DELTA_LON
     x = int(min(max(x, 0), MAP_WIDTH - 1))
     y = (lat - MIN_LAT) / DELTA_LAT
@@ -10,6 +11,7 @@ def convert_lonlat_to_xy(lon, lat):
 
 
 def convert_xy_to_lonlat(x, y):
+    # Converts given (x,y) location on the map to (longtitude, latitude) GPS location.
     lon = MIN_LON + DELTA_LON * (int(min(max(x, 0), MAP_WIDTH - 1)) + 0.5)
     lat = MIN_LAT + DELTA_LAT * (int(min(max(y, 0), MAP_HEIGHT - 1)) + 0.5)
     return lon, lat
