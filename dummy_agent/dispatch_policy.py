@@ -9,6 +9,8 @@ class DispatchPolicy(object):
         self.updated_at = {}
 
     def dispatch(self, current_time, vehicles):
+        # Returns a list of dispatching commands, and updates the status
+        # of the to-be-dispatched veicles to be assigned.
         self.update_state(current_time, vehicles)
         tbd_vehicles = self.get_tbd_vehicles(vehicles, current_time)
         # print("Len: ", len(tbd_vehicles))
@@ -26,6 +28,7 @@ class DispatchPolicy(object):
         return []
 
     def get_tbd_vehicles(self, vehicles, current_time):
+        # Retrieves a list of vehicles to be dispatched
         idle_vehicles = vehicles[vehicles.status == status_codes.V_IDLE]
         cruising_vehicles = vehicles[vehicles.status == status_codes.V_CRUISING]
         # print("I:", len(idle_vehicles))
