@@ -14,6 +14,7 @@ class Dummy_Agent(object):
         # return dispatch_commands
         return []
 
+    # Returns price decision for each (vehicle, request) pair, according to the pricing policy.
     def get_price_decision(self, vehicle, price, request):
         response = self.pricing_policy.propose_price(vehicle, price, request)
 
@@ -21,10 +22,13 @@ class Dummy_Agent(object):
 
 class DQN_Agent(Dummy_Agent):
 
+    # Returns the dispatch command according to the dispatching policy.
     def get_dispatch_commands(self, current_time, vehicles):
         dispatch_commands = self.dispatch_policy.dispatch(current_time, vehicles)
         return dispatch_commands
 
+    # This function initiates the dispatching of vehicles that newly entered the market to areas
+    # of anticipated high demand.
     def startup_dispatch(self, current_time, vehicles):
         self.dispatch_policy.update_state(current_time, vehicles)
         if FLAGS.train:
