@@ -52,6 +52,7 @@ class DemandLoader(object):
 
     @staticmethod
     def load_demand_profile(t):
+        # Load expected demand profile from DB
         localtime = get_local_datetime(t)
         dayofweek, hour = localtime.weekday(), localtime.hour
         query = """
@@ -67,6 +68,7 @@ class DemandLoader(object):
 
     @staticmethod
     def load_OD_matrix(t, alpha=0.1):
+        # Load origin-destination matrix over the map according to the local datetime.
         localtime = get_local_datetime(t)
         dayofweek, hour = localtime.weekday(), localtime.hour
         hours_bin = int(hour / DESTINATION_PROFILE_TEMPORAL_AGGREGATION)
