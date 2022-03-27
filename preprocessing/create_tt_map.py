@@ -14,7 +14,7 @@ state_space = [(x, y) for x in range(MAP_WIDTH) for y in range(MAP_HEIGHT)]
 action_space = [(ax, ay) for ax in range(-MAX_MOVE, MAX_MOVE + 1)
                 for ay in range(-MAX_MOVE, MAX_MOVE + 1)]
 
-
+# Create discretized map from GPS locations
 def create_reachable_map(engine):
     lon0, lat0 = convert_xy_to_lonlat(0, 0)
     lon1, lat1 = convert_xy_to_lonlat(1, 1)
@@ -33,7 +33,7 @@ def create_reachable_map(engine):
 
     return reachable_map
 
-
+# Create reachable map tensor
 def create_tt_tensor(engine, reachable_map):
     origin_destins_list = []
     for x, y in state_space:
@@ -56,7 +56,7 @@ def create_tt_tensor(engine, reachable_map):
     tt_tensor[np.isnan(tt_tensor)] = float('inf')
     return tt_tensor
 
-
+# Generate routes over the reachable map tensor
 def create_routes(engine, reachable_map):
     routes = {}
     for x, y in state_space:
