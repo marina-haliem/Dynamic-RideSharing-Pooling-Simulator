@@ -17,6 +17,7 @@ def calculate_price(dist, wait_time, mileage, price_per_travel_m, price_per_wait
     #    print("ERR", )
     #    print("Dist: ", dist, "Dist Cost: ", (dist*price_per_travel_m), "Gas Price: ", (dist*(gas_price/(mileage*1000.0))), "Base: ", price_per_travel_m, "Wait time: ", wait_time, "Wait Cost: ",(price_per_wait_min*wait_time))
 
+    # return the final price according to the pricing policy.
     price = (dist*price_per_travel_m) + (dist*(gas_price/(mileage*1000.0))) - (price_per_wait_min*wait_time)
     # print("Final Price: ", round(driver_base+price, 2)/100.0)
     return round(driver_base+price,2)/100.0
