@@ -6,6 +6,7 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 from db import engine, Session
 
+# Create the ride requests log in the simulator's database
 def create_request_backlog(input_file_path, table_name):
     df = pd.read_csv(input_file_path, index_col='id')
     print("load {} rows".format(len(df)))
