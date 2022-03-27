@@ -7,18 +7,20 @@ from common.time_utils import get_local_datetime, get_local_unixtime
 from common.geoutils import great_circle_distance
 from config.settings import BOUNDING_BOX
 
+# Loading trip data from the database
 def load_trip_data(path, cols, new_cols):
     df = pd.read_csv(path, usecols=cols, nrows=None)
     df.rename(columns=dict(zip(cols, new_cols)), inplace=True)
     return df
 
+# Get pickup time from datetime timestamp
 def convert_datetime(df):
     df['request_datetime'] = pd.to_datetime(df.pickup_datetime).apply(lambda x: int(get_local_unixtime(x)))
     df['trip_time'] = pd.to_datetime(df.dropoff_datetime).apply(lambda x: int(get_local_unixtime(x))) - df.request_datetime
     df = df.drop(['pickup_datetime', 'dropoff_datetime'], axis=1)
     return df
 
-
+# Remove outliers, keeping the map within reachable boundaries
 def remove_outliers(df):
     df['distance'] = great_circle_distance(df.origin_lat, df.origin_lon, df.destination_lat, df.destination_lon).astype(int)
     df['speed'] = df.distance / df.trip_time / 1000 * 3600 # km/h
@@ -43,6 +45,7 @@ def extract_bounding_box(df, bounding_box):
             (df.destination_lon < max_lon)]
     return df
 
+# Creating the dataset for this city map
 def create_dataset(gtrip_path, ytrip_path, bounding_box):
     green_cols = ['lpep_pickup_datetime', 'Lpep_dropoff_datetime', 'Pickup_longitude', 'Pickup_latitude',
                   'Dropoff_longitude', 'Dropoff_latitude', 'Fare_amount']
