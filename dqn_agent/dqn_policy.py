@@ -56,7 +56,8 @@ class DQNDispatchPolicy(DispatchPolicy):
             dispatch_commands.append(command)
         return dispatch_commands
 
-    # Return best action for this vehicle given its state, and returns whether it will be Offduty or not
+    # Return best action for this vehicle given its state, picking the action that corresponds to the maximum reward
+    # from the q-network, and returns whether it will be Offduty or not
     def predict_best_action(self, vehicle_id, vehicle_state):
         if vehicle_state.idle_duration >= MIN_DISPATCH_CYCLE and FLAGS.offduty_probability > np.random.random():
             a, offduty = (0, 0), 1
@@ -101,7 +102,7 @@ class DQNDispatchPolicy(DispatchPolicy):
             # print("Added:", vehicle.q_action_dict)
         return a, offduty
 
-    # Get the destination from dispatched vehicles
+    # Get the destination for the dispatched vehicles
     def convert_action_to_destination(self, vehicle_state, a):
         cache_key = None
         target = None
@@ -136,14 +137,14 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
         self.last_earnings = defaultdict(int)
         self.last_cost = defaultdict(int)
 
-    # Store memory
+    # Store memory (both supply-demand and q-network experience memory)
     def dump_experience_memory(self):
         sd_path = os.path.join(FLAGS.save_memory_dir, "sd_history.pkl")
         sars_path = os.path.join(FLAGS.save_memory_dir, "sars_history.pkl")
         pickle.dump(self.supply_demand_history, open(sd_path, "wb"))
         pickle.dump(self.experience_memory, open(sars_path, "wb"))
 
-    # Load stored memory
+    # Load stored experience memory
     def load_experience_memory(self, path):
         sd_path = os.path.join(path, "sd_history.pkl")
         sars_path = os.path.join(path, "sars_history.pkl")
@@ -160,7 +161,8 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
     def build_q_network(self, load_network=None):
         self.q_network = FittingDeepQNetwork(load_network)
 
-
+    # Return best action for this vehicle given its state, picking the action that corresponds to the maximum reward
+    # from the q-network, and returns whether it will be Offduty or not
     def predict_best_action(self, vehicle_id, vehicle_state):
         a, offduty = super().predict_best_action(vehicle_id, vehicle_state)
 
@@ -191,6 +193,7 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
             if row.status == status_codes.V_OFF_DUTY:
                 self.last_state_actions[vehicle_id] = None
 
+    # Execute the dispatch decisions for vehicles and store the network summary
     def dispatch(self, current_time, vehicles):
         self.give_rewards(vehicles)
         dispatch_commands = super().dispatch(current_time, vehicles)
@@ -204,6 +207,7 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
         return dispatch_commands
 
 
+    # Updates supply-demand every update cycle
     def backup_supply_demand(self):
         current_time = self.feature_constructor.get_current_time()
 
@@ -224,6 +228,7 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
         else:
             return None, None
 
+    # Restore the experience from the previous time step for this specific vehicle
     def memorize_experience(self, vehicle_id, vehicle_state, a):
         t = self.feature_constructor.get_current_time()     # Time
         l = mesh.convert_lonlat_to_xy(vehicle_state.lon, vehicle_state.lat)     # Location
@@ -240,6 +245,7 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
         self.rewards[vehicle_id] = 0    # Reset reward
         self.last_state_actions[vehicle_id] = (t, l, a)     # Update last action
 
+    # Training the network, update the target network every cycle
     def train_network(self, batch_size, n_iterations=1):
         loss_sum = 0
         q_max_sum = 0
