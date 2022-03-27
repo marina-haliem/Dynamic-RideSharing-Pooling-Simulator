@@ -44,6 +44,7 @@ from config.settings import MIN_LAT, MIN_LON, DELTA_LAT, DELTA_LON, MAP_WIDTH, M
 #     Session.execute(create_index)
 #     Session.commit()
 
+# Create demand profile in the database
 def create_demand_profile(df, profile_table, n_weeks):
     df["dayofweek"] = df.datetime_obj.apply(lambda x: x.weekday())
     df["hour"] = df.datetime_obj.apply(lambda x: x.hour)
@@ -65,7 +66,7 @@ def create_demand_profile(df, profile_table, n_weeks):
     Session.execute(create_index)
     Session.commit()
 
-
+# Store origin-destination 
 def create_od_profile(df, profile_table, n_weeks):
     hours_bin = DESTINATION_PROFILE_TEMPORAL_AGGREGATION
     n_agg = DESTINATION_PROFILE_SPATIAL_AGGREGATION
@@ -119,6 +120,7 @@ def create_latest_demand(source_table, latest_table):
     Session.execute(create_index)
     Session.commit()
 
+# Generate training dataset from the database
 def create_training_dataset(df, n_weeks):
     t_start = df.request_datetime.min()
     t_end = t_start + 3600 * 24 * 7 * n_weeks
