@@ -67,7 +67,7 @@ class DeepQNetwork(object):
         else:
             return amax
 
-
+# Learner Q-network used in trining mode
 class FittingDeepQNetwork(DeepQNetwork):
 
     def __init__(self, network_path=None):
