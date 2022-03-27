@@ -84,6 +84,7 @@ class simulator_driver(object):
         self.last_vehicle_id = 1
         self.vehicle_queue = []
 
+    # Assign vehicles to random initial locations
     def sample_initial_locations(self, t):
         locations = [mesh.convert_xy_to_lonlat(x, y)[::-1] for x in range(MAP_WIDTH) for y in range(MAP_HEIGHT)]
         p = demand_loader.DemandLoader.load_demand_profile(t)
@@ -92,6 +93,7 @@ class simulator_driver(object):
         # print("Num: ", len(vehicle_locations))
         return vehicle_locations
 
+    # Populate vehicles over the city map.
     def populate_vehicles(self, vehicle_locations):
         n_vehicles = len(vehicle_locations)
         vehicle_ids = range(self.last_vehicle_id, self.last_vehicle_id + n_vehicles)
@@ -102,6 +104,7 @@ class simulator_driver(object):
         q = sorted(zip(entering_time, vehicle_ids, vehicle_locations))
         self.vehicle_queue = q
 
+    # Initialize vehicles into the city according to their scheduled time to enter the market.
     def enter_market(self):
         t = self.simulator.get_current_time()
         while self.vehicle_queue:
