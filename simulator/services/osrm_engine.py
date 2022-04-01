@@ -11,6 +11,7 @@ class OSRMEngine(object):
         self.async_requester = AsyncRequester(n_threads)
         self.route_cache = {}
 
+    # Retrieve the nearest road for the given points.
     def nearest_road(self, points):
         """Input list of Origin-Destination (lat,lon) pairs, return
         tuple of (trajectory latlongs, distance, triptime)"""
@@ -34,7 +35,6 @@ class OSRMEngine(object):
         urllist = [self.get_route_url(origin, destin) for origin, destin in od_list]
         responses = self.async_requester.send_async_requests(urllist)
         resultlist = []
-        # print("HERE!")
         for res in responses:
             if "routes" not in res:
                 continue
@@ -65,7 +65,7 @@ class OSRMEngine(object):
         trajectory, triptime = self.route_cache[l][a]
         return trajectory[:], triptime
 
-    # Estimating Duration
+    # Estimating Duration until destination is reached.
     def eta_one_to_many(self, origin_destins_list):
         urllist = [self.get_eta_one_to_many_url([origin] + destins) for origin, destins in origin_destins_list]
         responses = self.async_requester.send_async_requests(urllist)
@@ -75,6 +75,7 @@ class OSRMEngine(object):
             resultlist.append(eta_list)
         return resultlist
 
+    # Estimating Duration
     def eta_many_to_one(self, origins_destin_list):
         urllist = [self.get_eta_one_to_many_url(origins + [destin]) for origins, destin in origins_destin_list]
         responses = self.async_requester.send_async_requests(urllist)
@@ -84,6 +85,7 @@ class OSRMEngine(object):
             resultlist.append(eta_list)
         return resultlist
 
+    # Estimating Duration between a set of origin points and a set of destination points.
     def eta_many_to_many(self, origins, destins):
         url = self.get_eta_many_to_many_url(origins, destins)
         res = self.async_requester.send_async_requests([url])[0]
@@ -94,7 +96,7 @@ class OSRMEngine(object):
             raise
         return eta_matrix
 
-
+    # Some URL getter functions
     def get_route_url(cls, from_latlon, to_latlon):
         """Get URL for osrm backend call for arbitrary to/from latlong pairs"""
         urlholder = """http://{hostport}/route/v1/driving/{lon0},{lat0};{lon1},{lat1}?overview=full""".format(
