@@ -16,7 +16,7 @@ class DemandGenerator(object):
         else:
             self.table = "request_backlog"
 
-
+    # Generate demand from the database according to given time
     def generate(self, current_time, timestep):
         try:
             # List of requests within a certain timeframe
