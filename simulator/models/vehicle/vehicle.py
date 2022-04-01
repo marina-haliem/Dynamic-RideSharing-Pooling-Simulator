@@ -76,6 +76,7 @@ class Vehicle(object):
             logger.error(self.state.to_msg())
             raise
 
+    # Calculate Vehicle's spped, based on route and ETA
     def compute_speed(self, route, triptime):
         lats, lons = zip(*route)
         distance = geoutils.great_circle_distance(lats[:-1], lons[:-1], lats[1:], lons[1:])     # Distance in meters
@@ -84,13 +85,16 @@ class Vehicle(object):
         # self.state.travel_dist += sum(distance)
         return speed
 
+    # Calculate fuel consumption based on travel distance, mileage and gas prices
     def compute_fuel_consumption(self):
         return float((self.state.travel_dist * (self.state.gas_price / (self.state.mileage * 1000.0)))/100.0)
 
+    # Calculate profit, after subtracting fuel cost from earnings
     def compute_profit(self):
         cost = (self.compute_fuel_consumption()/100.0)
         return self.earnings - cost
 
+    # Perform the dispatch by moving to destination
     def cruise(self, route, triptime):
         assert self.__behavior.available
         speed = self.compute_speed(route, triptime)
@@ -100,6 +104,7 @@ class Vehicle(object):
         self.__change_to_cruising()
         self.__log()
 
+    # Set destination to assigned customer's pickup location, 
     def head_for_customer(self, triptime, customer_id, route):
         assert self.__behavior.available
         # self.__reset_plan()
@@ -132,6 +137,7 @@ class Vehicle(object):
         self.__change_to_off_duty()
         self.__log()
 
+    # Upon reaching pickup location, adding the customer to the on-board customers and heading to next customer. 
     def pickup(self, customer):
         # print("At Pickup!", self.get_location(), " -> ", customer.get_origin())
         # print(self.get_id(), "Pickup: ", self.current_plan, self.ordered_pickups_dropoffs_ids)
@@ -185,21 +191,11 @@ class Vehicle(object):
         # self.state.current_capacity += 1
         self.__log()
 
+    # Upon reaching customer's destination, remove customer from onboard and collecting fare
     def dropoff(self, customer):
-        # print(self.get_location(), self.state.destination_lat, self.state.destination_lon)
-        # assert len(self.onboard_customers) > 0
-        # lenC = len(self.onboard_customers)
-        # print("At Dropoff!", self.get_location(), " -> ", customer.get_destination())
-        # print(self.get_id(), "Dropoff", self.current_plan, self.ordered_pickups_dropoffs_ids)
-
         self.onboard_customers.remove(customer)
         customer.get_off()
-        # print("Vid: ", self.get_id(), "'s Payment:")
-        self.earnings += customer.make_payment(self.state.driver_base_per_trip)
-        # self.state.travel_dist += great_circle_distance(customer.get_origin()[0], customer.get_origin()[1],
-        #                                                     customer.get_destination()[0],
-        #                                                     customer.get_destination()[1])
-
+        
         self.state.current_capacity -= 1
         self.tmp_capacity -= 1
 
@@ -245,6 +241,7 @@ class Vehicle(object):
         self.__log()
         # return customer
 
+    # Switch to parking, idle state and reset plan
     def park(self):
         self.reset_plan()
         self.change_to_idle()
@@ -254,15 +251,7 @@ class Vehicle(object):
         self.state.lat, self.state.lon = location
         self.__route_plan = route
 
-    # def update_customers(self, customer):
-    #     # customer.ride_on()
-    #     self.onboard_customers.append(customer)
-        # if FLAGS.enable_pooling:
-            # Head for nxt customer pickup
-            # r = self.pickup_routes.pop(0)
-            # nxt_cust =
-            # self.head_for_customer(self.ordered_pickups[0].get_origin(), triptime, customer_id, distance = None, r)
-
+    # subtract time travelled from ETA to updatime time to destination
     def update_time_to_destination(self, timestep):
         dt = min(timestep, self.state.time_to_destination)
         self.duration[self.state.status] += dt
@@ -287,10 +276,6 @@ class Vehicle(object):
         location = self.state.lat, self.state.lon
         return location
 
-    # def get_nxt_stop(self):
-    #     lat, lon = self.nxt_stop
-    #     return lat, lon
-
     def get_destination(self):
         destination = self.state.destination_lat, self.state.destination_lon
         return destination
@@ -298,7 +283,6 @@ class Vehicle(object):
     def get_speed(self):
         speed = self.state.speed
         return speed
-
 
     def get_price_rates(self):
         return [self.state.price_per_travel_m, self.state.price_per_wait_min]
