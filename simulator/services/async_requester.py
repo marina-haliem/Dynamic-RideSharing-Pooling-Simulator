@@ -12,7 +12,7 @@ class AsyncRequester(object):
         self.executor = futures.ThreadPoolExecutor(max_workers=self.n_threads)
 
     def send_async_requests(self, urllist):
-        """Sends asynchronous requests"""
+        """Sends asynchronous requests to a list of urls """
         if len(urllist) == 1:
             return self.get_batch(urllist)
         # Num of batches per thread
