@@ -34,6 +34,7 @@ class VehicleState(object):
         self.set_price_rates()
         self.agent_type = agent_type
 
+    # Assign vehicle types randomly upon populating them on the map.
     def selectVehicleType(self):
         r = randrange(4)
         if r == 0:
@@ -46,6 +47,7 @@ class VehicleState(object):
             return vehicle_types.SUV
         return r
 
+    # Set vehicle's maximum capacity according to type.
     def setCapacity(self):
         if self.type == vehicle_types.hatch_back:
             return 3
@@ -56,6 +58,7 @@ class VehicleState(object):
         if self.type == vehicle_types.SUV:
             return 5
 
+    # Set vehicle's mileage acording to type.
     def set_mileage(self):
         if self.type == vehicle_types.sedan:
             self.mileage = float(30)
@@ -70,6 +73,7 @@ class VehicleState(object):
             self.mileage = float(15)
             return self.mileage
 
+    # Set vehicle's price rate per travel meter and per waiting min according to type.
     def set_price_rates(self):
         if self.type == vehicle_types.sedan:
             self.price_per_travel_m = float(375) / 1000.0  # Per meter
