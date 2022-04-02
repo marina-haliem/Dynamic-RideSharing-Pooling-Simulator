@@ -5,13 +5,16 @@ Marina Haliem, Vaneet Aggarwal, Bharat Bhargava, "DRSP-Sim: A Simulator for Dyna
 ## Simulator Documentation and Flexibilities
 DRSP-Sim supports pooling, which allows vehicles to pickup more than one customer at the same time. This adds more complexities to the ridesharing scenario where the route planning needs to be optimized to accommodate all customers. Matching, pricing, and dispatching algorithms need to be devised such that they take pooling into consideration. This simulator (1) provides a real-time Dynamic RideSharing simulator with Pooling (DRSP-Sim) for evaluating ridesharing algorithms integrated into one simulator, and (2) provides benchmarks for vehicle-customer matching, route planning, pricing and dispatching to test a wide range of scenarios encountered in the real world. Our work enables real-time evaluations and provides guidance for designing and evaluating future ridesharing algorithms.
 
-## Getting Started
+## Getting Started (Simple Usecase)
+
+### Setup
 First, install Python 3.7. For development, we recommend cloning the simulator and installing the development dependencies using:
 
 git clone https://github.itap.purdue.edu/Clan-labs/Dynamic-RideSharing-Pooling-Simulator
 
 pip install -r requirements.txt
 
+### Input Data
 Download the pre-processed data files directly from: https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py to this directory. The steps to generate these files from scratch are also provided below.
 
 For a quick start, you can set the number of simulation days to 1 to run only one day of simulation in simulator/settings.py:
@@ -49,11 +52,13 @@ python parse_results.py
 This invokes the plotting functions in tools/log_analyzer.py 
 	
 ### 6. There is also multiple variables that are related to the DQN policy as well as the training hyper-parameters such as:
+```commandline
 	MAX_MEMORY_SIZE 	  		# Number of replay memory the dummy_agent uses for training.
 	SAVE_INTERVAL 		  		# The frequency with which the network is saved.
 	TARGET_UPDATE_INTERVAL 	# The frequency with which the target network is updated.
-	
+```
 ### 7. In addition to variables involved in calculating the reward function:
+```commandline
 	WORKING_COST = 0.2
 	DRIVING_COST = 0.2
 	STATE_REWARD_TABLE = {
@@ -62,7 +67,7 @@ This invokes the plotting functions in tools/log_analyzer.py
     		status_codes.V_ASSIGNED : -(WORKING_COST + DRIVING_COST),
     		status_codes.V_OCCUPIED : -(WORKING_COST + DRIVING_COST),
     		status_codes.V_OFF_DUTY : 0.0}
-		
+```
 ### 8. There is also various variables available in config/settings.py that related to the construction of  the region  graph  relying  on  the  New  York  city  map,  obtained  from  Open-StreetMap such as:
 	1. The minimum and maximum time allowed between dispatching:
 	 	MIN_DISPATCH_CYCLE
@@ -74,15 +79,18 @@ This invokes the plotting functions in tools/log_analyzer.py
 		LON_WIDTH
 		MAP_WIDTH = int(LON_WIDTH / DELTA_LON) + 1
 		MAP_HEIGHT = int(LAT_WIDTH / DELTA_LAT) + 1
-		
 ### 9. Switching between training and testing modes:
-	flags.DEFINE_boolean('train', True, "run training dqn_agent network."). 
+```commandline
+flags.DEFINE_boolean('train', True, "run training dqn_agent network."). 
+```
 This variable should be set to False in the testing mode.
 
 ### 10. Finally, after setting all releveant paths, add the full path to the repo directory in simulator_driver.py:
-	import sys
-	sys.path.insert(0, '..../Dynamic-RideSharing-Pooling-Simulator/')
-Then, run this file:
+```commandline
+import sys
+sys.path.insert(0, '..../Dynamic-RideSharing-Pooling-Simulator/')
+```
+### 11. Running the simulator:
 ```commandline
 python simulator_driver.py
 ```
@@ -96,6 +104,7 @@ In addition, a tag can also be set to distihguish logs related to different expe
 ```commandline
 flags.DEFINE_string('tag', 'tmp', "tag used to identify logs").
 ```
+### Interpretting the Results
 After the logs has been stored during training or testing, they can be parsed to generate plots of the metrices of interest:
 ```commandline
 python parse_results.py
