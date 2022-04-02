@@ -148,7 +148,8 @@ Please [file an issue on Github](https://github.com/marina-haliem/Dynamic-RideSh
 ## Data Generation
 The user can choose to either go through the pre-processing steps mentioned below to generate the data, or just fetch the pre-processed files directly from:  https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py
 
-Below you will find step-by-step instructions to set up the NYC taxi simulation using 2016-05 trips for training and 2016-06 trips for evaluation.
+Below you will find step-by-step instructions to set up the NYC taxi simulation using 2016-05 trips for training and 2016-06 trips for evaluation. If you would like to simulate another city map (other than NY), you basically follow the same preprocesing steps but using the osm data of the required city as well as its corresponding trip data as well. 
+
 ### 1. Download OSM Data
 ```commandline
 wget https://download.bbbike.org/osm/bbbike/NewYork/NewYork.osm.pbf -P osrm
