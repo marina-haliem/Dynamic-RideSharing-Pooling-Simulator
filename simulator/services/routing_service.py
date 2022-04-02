@@ -14,9 +14,9 @@ class RoutingEngine(object):
     def create_engine(cls):
         if cls.engine is None:
             if FLAGS.use_osrm:
-                cls.engine = OSRMEngine()
+                cls.engine = OSRMEngine()          # Real-time OSRM routing
             else:
-                cls.engine = FastRoutingEngine()
+                cls.engine = FastRoutingEngine()   # Pre-computed fast routing
         return cls.engine
 
 
@@ -40,7 +40,7 @@ class FastRoutingEngine(object):
                             origin_lat, origin_lon, destin_lat, destin_lon)
         self.ref_d = d  # Distance in meters
 
-    # (Origin - destination) pairs
+    # (Origin - destination) pairs routes/trajectories
     def route(self, od_pairs):
         results = []
         for (origin_lat, origin_lon), (dest_lat, dest_lon) in od_pairs:
@@ -49,17 +49,14 @@ class FastRoutingEngine(object):
             ax, ay = x_ - x, y_ - y
             axi = x_ - x + MAX_MOVE
             ayi = y_ - y + MAX_MOVE
-            # print(len(self.routes))
-            # if ax or ay > MAX_MOVE:
-                # trajectory = None
-            # else:
-            #     print((x, y), (ax, ay), (x_, y_))
+            
             trajectory = polyline.decode(self.routes[(x, y)][(ax, ay)]) # Route from origin to destination
             triptime = self.tt_map[x, y, axi, ayi]
             # print(triptime)
             results.append((trajectory, triptime))
         return results
 
+    # Compute route time for each (origin, destination) pair.
     def route_time(self, od_pairs):
         results = []
         new_od_pairs = []
@@ -131,7 +128,6 @@ class FastRoutingEngine(object):
 
             results.append((trajectory, triptime))
 
-            # results.extend(extra_res)
         return results
 
     def extra_routes(self, od_pairs):
