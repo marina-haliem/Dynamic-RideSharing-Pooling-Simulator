@@ -9,11 +9,11 @@ DRSP-Sim supports pooling, which allows vehicles to pickup more than one custome
 
 ### Setup
 First, install Python 3.7. For development, we recommend cloning the simulator and installing the development dependencies using:
-
+```commandline
 git clone https://github.itap.purdue.edu/Clan-labs/Dynamic-RideSharing-Pooling-Simulator
 
 pip install -r requirements.txt
-
+```
 ### Input Data
 Download the pre-processed data files directly from: https://purr.purdue.edu/publications/3843/1, load them into a directory, and set the DATA_DIR variable in config/settings.py to this directory. The steps to generate these files from scratch are also provided below.
 
