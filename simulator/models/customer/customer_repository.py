@@ -32,10 +32,12 @@ class CustomerRepository(object):
 
     @classmethod
     def get(cls, customer_id):
+        # Return customer wth this specific ID.
         return cls.customers.get(customer_id, None)
 
     @classmethod
     def get_all(cls):
+        # Return a list of all customers in repository.
         return list(cls.customers.values())
 
     @classmethod
