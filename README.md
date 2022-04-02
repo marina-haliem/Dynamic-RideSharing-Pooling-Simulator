@@ -44,7 +44,7 @@ If this is set to False, the simulator will default to the Pooling Pricing expla
 	flags.DEFINE_boolean('log_vehicle', False, "whether to log vehicle states"). 
 The customer-related events are being logged by default. These logs can then be parsed to generate plots of the relevant metrics by running:
 ```commandline
-	python parse_results.py
+python parse_results.py
 ```
 This invokes the plotting functions in tools/log_analyzer.py 
 	
@@ -90,20 +90,20 @@ python simulator_driver.py
 ## Post-Processing and Plot Generation
 The path to where logs will be stored can be set in config/settings.py:
 ```commandline
-	DEFAULT_LOG_DIR = "logs/tmp"
+DEFAULT_LOG_DIR = "logs/tmp"
 ```
 In addition, a tag can also be set to distihguish logs related to different experiments in simulator/settings.py:
 ```commandline
-	flags.DEFINE_string('tag', 'tmp', "tag used to identify logs").
+flags.DEFINE_string('tag', 'tmp', "tag used to identify logs").
 ```
 After the logs has been stored during training or testing, they can be parsed to generate plots of the metrices of interest:
 ```commandline
-	python parse_results.py
+python parse_results.py
 ```
 This functionality is pretty flexible too, this file invokes the plotting functions in tools/log_analyzer.py, which could be altered as needed to monitor any metrics that might be relevant to the experiment. By default this file will generate plots corresponding to the directory specified under 'config/settings.py' using the 'DEFAULT_LOG_DIR' parameter, where sim logs are present. If the user decides to comapre more than one experiment against each other, the paths to the additional experiments will need to be provided as well. This can be passed as a list of paths to the plot_summary() function as follows:
 ```commandline
-    def plot_summary(self, paths, labels, plt):
-        """Plotting of experiment summaries
+def plot_summary(self, paths, labels, plt):
+	"""Plotting of experiment summaries
         Args:
             paths:      (list) List of paths of all experiments which are to be plotted.
             labels:     (list) Names for each of the respective experiments.
