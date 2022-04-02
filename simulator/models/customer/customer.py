@@ -17,6 +17,7 @@ class Customer(object):
         self.accepted_price = 0
         self.set_preferences()
 
+    # Set customer preferences in terms of vehicle types, and price threshold
     def set_preferences(self):
         i = randrange(2)
         if i == 0:
@@ -75,7 +76,7 @@ class Customer(object):
     def get_request(self):
         return self.request
 
-    # Customer utility function goes here
+    # Customer utility function, based on which they accept or reject a ride
     def accpet_reject_ride(self, initial_price, assigned_vehicle_status, time_till_pickup):
         accept_response = 0
         capacity = assigned_vehicle_status.current_capacity
@@ -111,6 +112,7 @@ class Customer(object):
         return accept_response
 
     def wait_for_vehicle(self, waiting_time):
+        # calculate waiting time till vehicle arrives
         self.waiting_time = waiting_time
         self.status = status_codes.C_WAITING
 
@@ -133,6 +135,7 @@ class Customer(object):
         return self.status == status_codes.C_DISAPPEARED
 
     def make_payment(self, base):
+        # Pay fare to the driver
         if self.accepted_price < base:
             # print(base)
             return base
