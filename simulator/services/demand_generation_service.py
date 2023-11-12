@@ -1,12 +1,13 @@
+from sqlalchemy.sql import text
+
 from simulator.models.customer.customer import Customer
 from db import Session
+
 # import request
 
-query = """
-  SELECT *
-  FROM {table}
-  WHERE request_datetime >= {t1} and request_datetime < {t2};
-"""
+# query = (
+#     "SELECT * FROM {table} WHERE request_datetime >= {t1} and request_datetime < {t2};"
+# )
 
 
 class DemandGenerator(object):
@@ -20,7 +21,13 @@ class DemandGenerator(object):
     def generate(self, current_time, timestep):
         try:
             # List of requests within a certain timeframe
-            requests = list(Session.execute(query.format(table=self.table, t1=current_time, t2=current_time + timestep)))
+            t1 = current_time
+            t2 = current_time + timestep
+
+            query = text(
+                f"SELECT * FROM {self.table} WHERE request_datetime >= {t1} and request_datetime < {t2};"
+            )
+            requests = list(Session.execute(query))
             # List of customers associated with each request
             customers = [Customer(request) for request in requests]
             # for r in requests:
@@ -32,5 +39,3 @@ class DemandGenerator(object):
         finally:
             Session.remove()
         return customers
-
-

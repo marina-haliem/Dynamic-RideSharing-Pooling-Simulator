@@ -1,105 +1,200 @@
 import os
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense
 from simulator import settings
 from simulator.settings import FLAGS
+from config.settings import BASE_PATH
+
+from logger import sim_logger
+
+# Numerical imports
+import numpy as np
+
+# import tensorflow as tf
+# from tensorflow.keras.models import Model
+# from tensorflow.keras.layers import Input, Dense
+
+import haiku as hk
+import jax
+import jax.numpy as jnp
+import pickle
+import tqdm
+
 
 # Standrad Implementation of DeepQNetworks "Parent Class"
-class DeepQNetwork(object):
-    # tf.compat.v1.disable_eager_execution()
-    def __init__(self, network_path=None):
-        self.sa_input, self.q_values, self.model = self.build_q_network()
-        # print(FLAGS.save_network_dir)
-        if not os.path.exists(FLAGS.save_network_dir):
-            os.makedirs(FLAGS.save_network_dir)
-        # To save the retrained model so it could be used to run the model as (pre-trained)
-        self.saver = tf.compat.v1.train.Saver(self.model.trainable_weights)
-        self.sess = tf.compat.v1.InteractiveSession()
-        self.sess.run(tf.compat.v1.global_variables_initializer())
+# STATE SPACE STATE_FEATURES x ACTION_FEATURES => REWARD
+class DeepQNetwork(hk.Module):
+    def __init__(self):
+        super(DeepQNetwork, self).__init__(name="DeepQNetwork")
+        #
+        self.logger = logging.getLogger("QNNetwork")
+        # self.sa_input, self.q_values = self.build_q_network()
+        # self.network_params = hk.data_structures.Params(self.build_q_network())
 
-        if network_path:    # If previously constructed network is saved, load it
-            print("Net:", network_path)
-            self.load_network(network_path)
+        # if network_path:
+        #     print("Net:", network_path)
+        #     self.load_network(network_path)
 
-    # Build the Q network with the required layers and number of features
-    def build_q_network(self):
-        sa_input = Input(shape=(settings.NUM_FEATURES,), dtype='float32')
-        x = Dense(100, activation='relu', name='dense_1')(sa_input)
-        x = Dense(100, activation='relu', name='dense_2')(x)
-        q_value = Dense(1, name='q_value')(x)
-        model = Model(inputs=sa_input, outputs=q_value)
-        return sa_input, q_value, model
-
-    # Restore the saved network to use for pretrain
-    def load_network(self, network_path):
-        # print("Net:", network_path)
-        self.saver.restore(self.sess, "/Users/mwadea/Documents/RideSharing/logs/tmp/networks/model-10000")
-        # self.saver.restore(self.sess, network_path)
-
-        print('Successfully loaded: ' + network_path)
+    def __call__(self, sa_input):
+        x = hk.Linear(100, name="dense_1", with_bias=True)(sa_input)
+        x = jax.nn.relu(x)
+        x = hk.Linear(100, name="dense_2", with_bias=True)(x)
+        x = jax.nn.relu(x)
+        return hk.Linear(1, name="q_value", with_bias=True)(x)
 
 
-    def compute_q_values(self, s):
-        s_feature, a_features = s
-        q = self.q_values.eval(
-            feed_dict={
-                self.sa_input: np.array([s_feature + a_feature for a_feature in a_features], dtype=np.float32)
-            })[:, 0]
-        return q
+def compute_q_values(s_feature, a_features):
+    # def compute_q_values(s):
+    # sa_input = jnp.array(
+    #     [s_feature + a_feature for a_feature in a_features], dtype=jnp.float32
+    # )
+    sa_input = s_feature + jnp.array(a_features)
+    q_values = DeepQNetwork()(sa_input)
+    return q_values[:, 0]
 
-    # Get action associated with max q-value
-    def get_action(self, q_values, amax):
-        if FLAGS.alpha > 0:
-            exp_q = np.exp((q_values - q_values[amax]) / FLAGS.alpha)
-            p = exp_q / exp_q.sum()
-            return np.random.choice(len(p), p=p)
-        else:
-            return amax
 
-        # Get price associated with max q-value
-    def get_price(self, q_values, amax):
-        if FLAGS.alpha > 0:
-            exp_q = np.exp((q_values - q_values[amax]) / FLAGS.alpha)
-            p = exp_q / exp_q.sum()
-            return np.random.choice(len(p), p=p)
-        else:
-            return amax
+# Get action associated with max q-value
+@jax.jit
+def get_action(q_values, amax):
+    if FLAGS.alpha > 0:
+        exp_q = jnp.exp((q_values - q_values[amax]) / FLAGS.alpha)
+        p = exp_q / exp_q.sum()
+        return np.random.choice(len(p), p=p)
+    else:
+        return amax
 
-# Learner Q-network used in trining mode
-class FittingDeepQNetwork(DeepQNetwork):
 
-    def __init__(self, network_path=None):
-        super().__init__(network_path)
-        model_weights = self.model.trainable_weights
-        # Create target network
-        self.target_sub_input, self.target_q_values, self.target_model = self.build_q_network()
-        target_model_weights = self.target_model.trainable_weights
+# Get price associated with max q-value
+@jax.jit
+def get_price(q_values, amax):
+    if FLAGS.alpha > 0:
+        exp_q = jnp.exp((q_values - q_values[amax]) / FLAGS.alpha)
+        p = exp_q / exp_q.sum()
+        return np.random.choice(len(p), p=p)
+    else:
+        return amax
 
-        # Define target network update operation
-        self.update_target_network = [target_model_weights[i].assign(model_weights[i]) for i in
-                                      range(len(target_model_weights))]
 
-        # Define loss and gradient update operation
-        self.y, self.loss, self.grad_update = self.build_training_op(model_weights)
-        self.sess.run(tf.compat.v1.global_variables_initializer())
+@jax.jit
+def UpdateWeights(weights, gradients, learning_rate):
+    return weights - learning_rate * gradients
 
-        # if load_network:
-        #     self.load_network()
 
-        # Initialize target network
-        self.sess.run(self.update_target_network)
+def save(ckpt_dir: str, state) -> None:
+    if not os.path.exists(ckpt_dir):
+        os.mkdir(ckpt_dir)
 
+    with open(os.path.join(ckpt_dir, "arrays.npy"), "wb") as f:
+        for x in jax.tree_leaves(state):
+            np.save(f, x, allow_pickle=False)
+
+    tree_struct = jax.tree_map(lambda t: 0, state)
+    with open(os.path.join(ckpt_dir, "tree.pkl"), "wb") as f:
+        pickle.dump(tree_struct, f)
+
+    print("Successfully saved: " + save_path)
+
+
+def restore(ckpt_dir):
+    with open(os.path.join(ckpt_dir, "tree.pkl"), "rb") as f:
+        tree_struct = pickle.load(f)
+
+    leaves, treedef = jax.tree_flatten(tree_struct)
+    with open(os.path.join(ckpt_dir, "arrays.npy"), "rb") as f:
+        flat_state = [np.load(f) for _ in leaves]
+
+    return jax.tree_unflatten(treedef, flat_state)
+
+
+class DeepQTrainingLoop:
+    def __init__(self, wasInstantiated=False):
+        # TODO Feed training data to the model
+        self.wasInitiated = wasInstantiated
+        self.epsilon = 0.01
         self.n_steps = 0
         self.epsilon = settings.INITIAL_EPSILON
-        self.epsilon_step = (settings.FINAL_EPSILON - settings.INITIAL_EPSILON) / settings.EXPLORATION_STEPS
+        self.epsilon_step = (
+            settings.FINAL_EPSILON - settings.INITIAL_EPSILON
+        ) / settings.EXPLORATION_STEPS
 
+    def load_memory_data(self, data):
+        assert False
+        self.training_data = data
 
-        for var in model_weights:
-            tf.compat.v1.summary.histogram(var.name, var)
-        self.summary_placeholders, self.update_ops, self.summary_op = self.setup_summary()
-        self.summary_writer = tf.compat.v1.summary.FileWriter(FLAGS.save_summary_dir, self.sess.graph)
+    def instatiateNets(self, s_features, a_features, load_prev: bool, ckpt_dir="model"):
+        self.rng = jax.random.PRNGKey(42)
+
+        # self.conv_net = hk.transform(CNN)
+        self.applyDQN = hk.transform(compute_q_values)
+
+        # paramsCNN = self.conv_net.init(self.rng, self.X_train[:5])
+        params_agent = self.applyDQN.init(self.rng, s_features, a_features)
+        # paramsClassifier = self.applyClassifier.init(self.rng, test_data)
+        test = self.applyDQN.apply(params_agent, self.rng, s_features, a_features)
+
+        self.wasInitiated = True
+        if load_prev:
+            params_agent = self.restore_model(ckpt_dir)
+
+        return params_agent
+
+    def restore_model(self, ckpt_dir="model", name="dqn_agent"):
+        return restore(BASE_PATH / f"{ckpt_dir}/{name}")
+
+    def training_op(self, model_params):
+        q_values = self.applyDQN.apply(sa_batch)
+        q_value = jnp.sum(q_values, axis=1)
+        loss = jnp.mean(jnp.square(y_batch - q_value))
+
+        # Type signature
+        return self.y, loss
+
+    def run_cyclic_updates(self, params_agent):
+        self.n_steps += 1
+        # Update target network
+        # if self.n_steps % settings.TARGET_UPDATE_INTERVAL == 0:
+        #     self.update_target_network()
+        #     print("Update target network")
+
+        if self.n_steps % settings.SAVE_INTERVAL == 0:
+            # Note: Saving and loading models in Haiku is usually done outside the module.
+            # You can use jax.tree_util.tree_flatten and tree_unflatten to save and load parameters.
+            save_path = "model"  # Replace with your saving logic
+            save(state=params_agent, ckpt_dir=BASE_PATH / "model/dqn_agent")
+            print("Successfully saved: " + save_path)
+
+        # Anneal epsilon linearly over time
+        if self.n_steps < settings.EXPLORATION_STEPS:
+            self.epsilon += self.epsilon_step
+
+    def training_step(
+        self,
+        batch,
+        # batch_size=256,
+        learning_rate=1 / 1e4,
+        ckpt_dir="model",
+    ):
+        # params = self.conv_net.init(self.rng, self.X_train[:5])
+        print("Starting Training...")
+        if not self.wasInitiated:
+            params_agent = self.instatiateNets(load_prev=True)
+
+            # First argument must be the weights to take the gradients with respect to!
+        losses_agent = []
+        evaluateLossAgent = jax.value_and_grad(self.training_op)
+        # TODO this is vmap'ed  over the batch axis
+        loss_agent, param_grads_agent = evaluateLossAgent(params_agent, batch)
+
+        params_agent = jax.tree_map(
+            lambda x, y: UpdateWeights(x, y, learning_rate),
+            params_agent,
+            param_grads_agent,
+        )  ## Update Params
+
+        losses_agent.append(loss_agent)  ## Record Loss
+
+        return losses_agent, params_agent
+
+    def save_model(self, params_classifier, params_embedder, ckpt_dir="model"):
+        save(os.path.join(ckpt_dir, "classifier"), params_classifier)
 
     # Greedy Approach to get action with max q-value
     def get_action(self, q_values, amax):
@@ -107,83 +202,68 @@ class FittingDeepQNetwork(DeepQNetwork):
         if self.epsilon > np.random.random():
             return np.random.randint(len(q_values))
         else:
-            return super().get_action(q_values, amax)
+            return get_action(q_values, amax)
 
     def get_fingerprint(self):
         return self.n_steps, self.epsilon
 
-    # Calc target Q value based on State features and action features of next t
     def compute_target_q_values(self, s):
         s_feature, a_features = s
-        q = self.target_q_values.eval(
-            feed_dict={
-                self.target_sub_input: np.array([s_feature + a_feature for a_feature in a_features], dtype=np.float32)
-            })[:, 0]
-        return q
+        if not self.wasInitiated:
+            sim_logger.log_dqn("INSTATIATING NETS...")
+            self.instatiateNets(
+                load_prev=False, s_features=s_feature, a_features=a_features
+            )
+        sim_logger.log_dqn(
+            f"STATE AND ACTION FEATURES => {s_feature} - {a_features}", "debug"
+        )
+
+        return self.applyDQN.apply(s_feature, a_features)
 
     def compute_target_value(self, s):
         Q = self.compute_target_q_values(s)
-        amax = np.argmax(self.compute_q_values(s))
+        amax = jnp.argmax(self.applyDQN.apply(s))
         V = Q[amax]
         if FLAGS.alpha > 0:
-            V += FLAGS.alpha * np.log(np.exp((Q - Q.max()) / FLAGS.alpha).sum())
+            V += FLAGS.alpha * jnp.log(np.exp((Q - Q.max()) / FLAGS.alpha).sum())
         return V
 
-    # Fitting the model using state action list and associated next state
-    def fit(self, sa_batch, y_batch):
-        loss, _ = self.sess.run([self.loss, self.grad_update], feed_dict={
-            self.sa_input: np.array(sa_batch, dtype=np.float32),
-            self.y: np.array(y_batch, dtype=np.float32)
-        })
-        return loss
-
-    def run_cyclic_updates(self):
-        self.n_steps += 1
-        # Update target network
-        if self.n_steps % settings.TARGET_UPDATE_INTERVAL == 0:
-            self.sess.run(self.update_target_network)
-            print("Update target network")
-
-        # Save network
-        if self.n_steps % settings.SAVE_INTERVAL == 0:
-            save_path = self.saver.save(self.sess, os.path.join(FLAGS.save_network_dir, "model"), global_step=(self.n_steps))
-            print('Successfully saved: ' + save_path)
-
-        # Anneal epsilon linearly over time
-        if self.n_steps < settings.EXPLORATION_STEPS:
-            self.epsilon += self.epsilon_step
-
-    # Building the training optimizer (updating the gradient)
-    def build_training_op(self, q_network_weights):
-        y = tf.compat.v1.placeholder(tf.float32, shape=(None))
-        q_value = tf.compat.v1.reduce_sum(self.q_values, reduction_indices=1)
-        loss = tf.compat.v1.losses.huber_loss(y, q_value)
-        optimizer = tf.compat.v1.train.RMSPropOptimizer(settings.LEARNING_RATE, momentum=settings.MOMENTUM, epsilon=settings.MIN_GRAD)
-        grad_update = optimizer.minimize(loss, var_list=q_network_weights)
-
-        return y, loss, grad_update
-
     def setup_summary(self):
-        avg_max_q = tf.compat.v1.Variable(0.)
-        tf.compat.v1.summary.scalar('Average_Max_Q', avg_max_q)
-        avg_loss = tf.compat.v1.Variable(0.)
-        tf.compat.v1.summary.scalar('Average_Loss', avg_loss)
-        summary_vars = [avg_max_q, avg_loss]
-        summary_placeholders = [tf.compat.v1.placeholder(tf.float32) for _ in range(len(summary_vars))]
-        update_ops = [summary_vars[i].assign(summary_placeholders[i]) for i in range(len(summary_vars))]
-        summary_op = tf.compat.v1.summary.merge_all()
-        return summary_placeholders, update_ops, summary_op
+        raise NotImplementedError("WE DONT NEED THIS")
 
     def write_summary(self, avg_loss, avg_q_max):
-        # tf.compat.v1.enable_eager_execution()
-        # print(self.update_ops)
-        # print(self.summary_placeholders)
-        stats = [avg_q_max, avg_loss]
-        for i in range(len(stats)):
-            self.sess.run(self.update_ops[i], feed_dict={
-                self.summary_placeholders[i]: float(stats[i])
-            })
-        # print(self.summary_op)
-        summary_str = self.sess.run(self.summary_op)
-        # Write optimized avg loss, and avg q_max
-        self.summary_writer.add_summary(summary_str, self.n_steps)
+        # Write your summary logic here
+        raise NotImplementedError("Replace this with the logging module")
+
+
+# # Learner Q-network used in trining mode
+# class FittingDeepQNetwork(DeepQNetwork):
+#     def __init__(self, network_path=None):
+#         super(FittingDeepQNetwork, self).__init__(network_path)
+
+#         self.sa_input, self.q_values = self.build_q_network()
+#         self.model_params = hk.data_structures.Params(self.build_q_network())
+
+#         # Create target network
+#         self.target_sub_input, self.target_q_values = self.build_q_network()
+#         # target_model_params = hk.data_structures.Params(self.build_q_network())
+#         # Define target network update operation
+#         # self.update_target_network = [jax.tree_multimap(lambda x, y: y, target_model_params, self.model_params)]
+
+#         # Define loss and gradient update operation
+#         self.y, self.loss, self.grad_update = self.build_training_op(self.model_params)
+
+#         # Initialize target network
+#         self.update_target_network()
+
+#         self.n_steps = 0
+#         self.epsilon = settings.INITIAL_EPSILON
+#         self.epsilon_step = (
+#             settings.FINAL_EPSILON - settings.INITIAL_EPSILON
+#         ) / settings.EXPLORATION_STEPS
+
+#         for var_name, var_value in hk.data_structures.dataclass_items(
+#             self.model_params
+#         ):
+#             # Print or log Haiku parameter names
+#             print(f"Parameter Name: {var_name}, Shape: {var_value.shape}")
