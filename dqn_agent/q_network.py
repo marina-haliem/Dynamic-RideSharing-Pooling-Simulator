@@ -113,9 +113,9 @@ class DeepQTrainingLoop:
             settings.FINAL_EPSILON - settings.INITIAL_EPSILON
         ) / settings.EXPLORATION_STEPS
 
-    def load_memory_data(self, data):
-        assert False
-        self.training_data = data
+    # def load_memory_data(self, data):
+    #     assert False
+    #     self.training_data = data
 
     def instatiateNets(self, s_features, a_features, load_prev: bool, ckpt_dir="model"):
         self.rng = jax.random.PRNGKey(42)
@@ -125,23 +125,24 @@ class DeepQTrainingLoop:
 
         # paramsCNN = self.conv_net.init(self.rng, self.X_train[:5])
         sa_input = jnp.array([s_features + a_feature for a_feature in a_features])
-        params_agent = self.applyDQN.init(self.rng, sa_input)
+        self.params_agent = self.applyDQN.init(self.rng, sa_input)
         # paramsClassifier = self.applyClassifier.init(self.rng, test_data)
 
 
-        _ = self.applyDQN.apply(params_agent, self.rng, sa_input)
+        _ = self.applyDQN.apply(self.params_agent, self.rng, sa_input)
 
         self.wasInitiated = True
         if load_prev:
-            params_agent = self.restore_model(ckpt_dir)
+            self.params_agent = self.restore_model(ckpt_dir)
 
-        return params_agent
+        return self.params_agent
 
     def restore_model(self, ckpt_dir="model", name="dqn_agent"):
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
-    def training_op(self, model_params):
-        q_values = self.applyDQN.apply(sa_batch)
+    def training_op(self, sa_input_batch, y_batch):
+        q_values = self.applyDQN.apply(self.params_agent, self.rng, sa_input_batch)
+        # q_values = self.applyDQN.apply(sa_batch)
         q_value = jnp.sum(q_values, axis=1)
         loss = jnp.mean(jnp.square(y_batch - q_value))
 
@@ -175,24 +176,23 @@ class DeepQTrainingLoop:
     ):
         # params = self.conv_net.init(self.rng, self.X_train[:5])
         print("Starting Training...")
-        if not self.wasInitiated:
-            params_agent = self.instatiateNets(load_prev=True)
+        # if not self.wasInitiated:
+        #     params_agent = self.instatiateNets(load_prev=True)
 
             # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
         evaluateLossAgent = jax.value_and_grad(self.training_op)
         # TODO this is vmap'ed  over the batch axis
-        loss_agent, param_grads_agent = evaluateLossAgent(params_agent, batch)
+        loss_agent, param_grads_agent = evaluateLossAgent(batch)
 
-        params_agent = jax.tree_map(
+        self.params_agent = jax.tree_map(
             lambda x, y: UpdateWeights(x, y, learning_rate),
-            params_agent,
+            self.params_agent,
             param_grads_agent,
         )  ## Update Params
 
         losses_agent.append(loss_agent)  ## Record Loss
-
-        return losses_agent, params_agent
+        return losses_agent, self.params_agent
 
     def save_model(self, params_classifier, params_embedder, ckpt_dir="model"):
         save(os.path.join(ckpt_dir, "classifier"), params_classifier)
@@ -220,14 +220,18 @@ class DeepQTrainingLoop:
         )
 
         sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
-        return self.applyDQN.apply(sa_input)
+
+        q_values = self.applyDQN.apply(self.params_agent, self.rng, sa_input)
+        return q_values
 
     def compute_target_value(self, s):
         Q = self.compute_target_q_values(s)
 
         s_feature, a_features = s
         sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
-        amax = jnp.argmax(self.applyDQN.apply(sa_input))
+
+        q_values = self.applyDQN.apply(self.params_agent, self.rng, sa_input)
+        amax = jnp.argmax(q_values)
         V = Q[amax]
         if FLAGS.alpha > 0:
             V += FLAGS.alpha * jnp.log(np.exp((Q - Q.max()) / FLAGS.alpha).sum())
