@@ -306,10 +306,10 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
                 sa,
                 y,
             ) = self.replay_memory()  # Get state and action features, with the reward
-            sa_batch.append(sa)
-            y_batch.append(y)
+            sa_batch.append(jnp.array(sa))
+            y_batch.append(jnp.array(y))
 
-        return sa_batch, y_batch
+        return jnp.array(sa_batch), jnp.array(y_batch)
 
     # Replay when needed, returns State features and action features along with reward
     def replay_memory(self, max_retry=100):
