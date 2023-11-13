@@ -90,7 +90,9 @@ class DQNDispatchPolicy(DispatchPolicy):
                 # Q = self.q_network.compute_q_values(s)
 
                 s_feature, a_features = s
-                sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
+                sa_input = jnp.array(
+                    [s_feature + a_feature for a_feature in a_features]
+                )
                 Q = self.training_loop.applyDQN.apply(sa_input)
                 # print("Q values: ", Q)
                 # only considers actions whose values are greater than wait action value
@@ -285,8 +287,10 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
     # TODO Here update the training loop
     def train_network(self, batch_size, n_iterations=1):
         for _ in range(n_iterations):
-            batch = self.build_batch(batch_size)
-            losses_agent, params_agent = self.training_loop.training_step(batch)
+            sa_batch, y_batch = self.build_batch(batch_size)
+            losses_agent, params_agent = self.training_loop.training_step(
+                sa_batch, y_batch
+            )
             self.training_loop.run_cyclic_updates(
                 params_agent=params_agent
             )  # Update target network

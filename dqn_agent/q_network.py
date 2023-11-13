@@ -169,8 +169,8 @@ class DeepQTrainingLoop:
 
     def training_step(
         self,
-        batch,
-        # batch_size=256,
+        sa_batch,
+            y_batch,
         learning_rate=1 / 1e4,
         ckpt_dir="model",
     ):
@@ -183,7 +183,7 @@ class DeepQTrainingLoop:
         losses_agent = []
         evaluateLossAgent = jax.value_and_grad(self.training_op)
         # TODO this is vmap'ed  over the batch axis
-        loss_agent, param_grads_agent = evaluateLossAgent(batch)
+        loss_agent, param_grads_agent = evaluateLossAgent(sa_batch, y_batch)
 
         self.params_agent = jax.tree_map(
             lambda x, y: UpdateWeights(x, y, learning_rate),
