@@ -147,7 +147,7 @@ class DeepQTrainingLoop:
         loss = jnp.mean(jnp.square(y_batch - q_values))
 
         # Type signature
-        return self.y, loss
+        return loss
 
     def run_cyclic_updates(self, params_agent):
         self.n_steps += 1
