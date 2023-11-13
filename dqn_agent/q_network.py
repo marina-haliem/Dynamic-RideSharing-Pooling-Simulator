@@ -126,7 +126,10 @@ class DeepQTrainingLoop:
         # paramsCNN = self.conv_net.init(self.rng, self.X_train[:5])
         params_agent = self.applyDQN.init(self.rng, s_features, a_features)
         # paramsClassifier = self.applyClassifier.init(self.rng, test_data)
-        test = self.applyDQN.apply(params_agent, self.rng, s_features, a_features)
+
+        sa_input = jnp.array([s_features + a_feature for a_feature in a_features])
+
+        _ = self.applyDQN.apply(params_agent, self.rng, sa_input)
 
         self.wasInitiated = True
         if load_prev:
