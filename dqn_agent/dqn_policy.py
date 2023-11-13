@@ -88,7 +88,10 @@ class DQNDispatchPolicy(DispatchPolicy):
                 # print("S: ", s)
                 # Calculate Q values based on state features
                 # Q = self.q_network.compute_q_values(s)
-                Q = self.training_loop.applyDQN.apply(s)
+
+                s_feature, a_features = s
+                sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
+                Q = self.training_loop.applyDQN.apply(sa_input)
                 # print("Q values: ", Q)
                 # only considers actions whose values are greater than wait action value
                 wait_action_value = Q[0]

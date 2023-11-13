@@ -41,10 +41,9 @@ class DeepQNetwork(hk.Module):
         return hk.Linear(1, name="q_value", with_bias=True)(x)
 
 
-def compute_q_values(s_feature, a_features):
+def compute_q_values(sa_input):
     # s_feature = jnp.array(s_feature)
     # What was intended here was to concat everything into the input!
-    sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
     # sa_input = s_feature + a_features
     q_values = DeepQNetwork()(sa_input)
     return q_values[:, 0]
@@ -217,11 +216,15 @@ class DeepQTrainingLoop:
             f"STATE AND ACTION FEATURES => {s_feature} - {a_features}", "debug"
         )
 
-        return self.applyDQN.apply(s_feature, a_features)
+        sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
+        return self.applyDQN.apply(sa_input)
 
     def compute_target_value(self, s):
         Q = self.compute_target_q_values(s)
-        amax = jnp.argmax(self.applyDQN.apply(s))
+
+        s_feature, a_features = s
+        sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
+        amax = jnp.argmax(self.applyDQN.apply(sa_input))
         V = Q[amax]
         if FLAGS.alpha > 0:
             V += FLAGS.alpha * jnp.log(np.exp((Q - Q.max()) / FLAGS.alpha).sum())
