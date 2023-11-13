@@ -143,8 +143,8 @@ class DeepQTrainingLoop:
     def training_op(self, sa_input_batch, y_batch):
         q_values = self.applyDQN.apply(self.params_agent, self.rng, sa_input_batch)
         # q_values = self.applyDQN.apply(sa_batch)
-        q_value = jnp.sum(q_values, axis=1)
-        loss = jnp.mean(jnp.square(y_batch - q_value))
+        # q_value = jnp.sum(q_values, axis=1)
+        loss = jnp.mean(jnp.square(y_batch - q_values))
 
         # Type signature
         return self.y, loss
