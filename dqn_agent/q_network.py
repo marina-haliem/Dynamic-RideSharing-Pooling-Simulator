@@ -42,11 +42,13 @@ class DeepQNetwork(hk.Module):
 
 
 def compute_q_values(s_feature, a_features):
-    # def compute_q_values(s):
-    # sa_input = jnp.array(
-    #     [s_feature + a_feature for a_feature in a_features], dtype=jnp.float32
-    # )
-    sa_input = s_feature + jnp.array(a_features)
+    s_feature = jnp.array(s_feature)
+    a_features = jnp.array(a_features)
+
+    print(f"s_feature SHAPE => {s_feature.shape}")
+    print(f"a_feature SHAPE => {a_features.shape}")
+
+    sa_input = s_feature + a_features
     q_values = DeepQNetwork()(sa_input)
     return q_values[:, 0]
 
