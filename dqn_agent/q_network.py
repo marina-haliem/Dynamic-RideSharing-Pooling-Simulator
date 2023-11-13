@@ -25,7 +25,7 @@ class DeepQNetwork(hk.Module):
     def __init__(self):
         super(DeepQNetwork, self).__init__(name="DeepQNetwork")
         #
-        self.logger = logging.getLogger("QNNetwork")
+        # self.logger = sim_logger.getLogger("QNNetwork")
         # self.sa_input, self.q_values = self.build_q_network()
         # self.network_params = hk.data_structures.Params(self.build_q_network())
 
