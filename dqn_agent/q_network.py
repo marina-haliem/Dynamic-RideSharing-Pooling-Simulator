@@ -128,7 +128,6 @@ class DeepQTrainingLoop:
         self.params_agent = self.applyDQN.init(self.rng, sa_input)
         # paramsClassifier = self.applyClassifier.init(self.rng, test_data)
 
-
         _ = self.applyDQN.apply(self.params_agent, self.rng, sa_input)
 
         self.wasInitiated = True
@@ -170,7 +169,7 @@ class DeepQTrainingLoop:
     def training_step(
         self,
         sa_batch,
-            y_batch,
+        y_batch,
         learning_rate=1 / 1e4,
         ckpt_dir="model",
     ):
@@ -179,17 +178,20 @@ class DeepQTrainingLoop:
         # if not self.wasInitiated:
         #     params_agent = self.instatiateNets(load_prev=True)
 
-            # First argument must be the weights to take the gradients with respect to!
+        # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
         evaluateLossAgent = jax.value_and_grad(self.training_op)
         # TODO this is vmap'ed  over the batch axis
         loss_agent, param_grads_agent = evaluateLossAgent(sa_batch, y_batch)
 
-        self.params_agent = jax.tree_map(
-            lambda x, y: UpdateWeights(x, y, learning_rate),
-            self.params_agent,
-            param_grads_agent,
-        )  ## Update Params
+        self.params_agent = UpdateWeights(
+            self.params_agent, param_grads_agent, learning_rate
+        )
+        # self.params_agent = jax.tree_map(
+        #     lambda x, y: UpdateWeights(x, y, learning_rate),
+        #     self.params_agent,
+        #     param_grads_agent,
+        # )  ## Update Params
 
         losses_agent.append(loss_agent)  ## Record Loss
         return losses_agent, self.params_agent
