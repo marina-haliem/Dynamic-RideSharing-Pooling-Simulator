@@ -160,8 +160,8 @@ class DeepQTrainingLoop:
 
         vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=1)
         q_values = vApply(sa_data)
-        jax.debug.print("PARAMS ARE => {p}", p=params)
-        jax.debug.print("SA_BATCH ARE => {p}", p=sa_data)
+        # jax.debug.print("PARAMS ARE => {p}", p=params)
+        # jax.debug.print("SA_BATCH ARE => {p}", p=sa_data)
         jax.debug.print("REWARDS ARE => {p}", p=rewards)
         jax.debug.print("Q_VALUES ARE => {p}", p=q_values)
         return mse_loss(q_values, rewards)
