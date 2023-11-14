@@ -1,8 +1,8 @@
 import os
+from typing import List
 from simulator import settings
 from simulator.settings import FLAGS
 from config.settings import BASE_PATH
-
 from logger import sim_logger
 
 # Numerical imports
@@ -142,11 +142,16 @@ class DeepQTrainingLoop:
     def restore_model(self, ckpt_dir="model", name="dqn_agent"):
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
-    def training_op(self, params, sa_input_batch, y_batch):
-        vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=1)
-        q_values = vApply(sa_input_batch)
-        vLoss = jax.vmap(mse_loss, in_axes=(0,0))
-        return vLoss(q_values, y_batch)
+    def training_op(self, params, training_tuples:List[TrainingTuple]):
+
+        sa_data = jnp.array([t.state_action_features for t in training_tuples])
+        rewards = jnp.array([t.reward for t in training_tuples])
+
+        vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=0)
+        q_values = vApply(sa_data)
+        return mse_loss(q_values, rewards)
+        # vLoss = jax.vmap(mse_loss, in_axes=(0,0))
+        # return vLoss(q_values, rewards)
 
 
     def run_cyclic_updates(self, params_agent):
@@ -169,8 +174,7 @@ class DeepQTrainingLoop:
 
     def training_step(
         self,
-        sa_batch,
-        y_batch,
+            training_tuples,
         learning_rate=1 / 1e4,
         ckpt_dir="model",
     ):
@@ -181,7 +185,7 @@ class DeepQTrainingLoop:
 
         # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
-        evaluateLossAgent = jax.value_and_grad(lambda params: self.training_op(params, sa_batch, y_batch), argnums=0)
+        evaluateLossAgent = jax.value_and_grad(lambda params: self.training_op(params, training_tuples), argnums=0)
         # TODO this is vmap'ed  over the batch axis
         loss_agent, param_grads_agent = evaluateLossAgent(self.params_agent)
 

@@ -1,5 +1,6 @@
 import pickle
 import os
+from typing import NamedTuple
 import numpy as np
 from collections import OrderedDict, defaultdict
 from simulator.settings import FLAGS
@@ -19,6 +20,12 @@ from common import mesh
 from novelties import status_codes
 from simulator.models.vehicle.vehicle_repository import VehicleRepository
 
+class TrainingTuple(NamedTuple):
+    state_action_features: jnp.DeviceArray
+    reward: jnp.DeviceArray
+
+def to_training_tuple(sa, y):
+    return TrainingTuple(state_action_features=sa, reward=y)
 
 class DQNDispatchPolicy(DispatchPolicy):
     def __init__(self):
@@ -301,15 +308,18 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
     def build_batch(self, batch_size):
         sa_batch = []
         y_batch = []
-        for _ in range(batch_size):
-            (
-                sa,
-                y,
-            ) = self.replay_memory()  # Get state and action features, with the reward
-            sa_batch.append(jnp.array(sa))
-            y_batch.append(jnp.array(y))
 
-        return jnp.array(sa_batch), jnp.array(y_batch)
+        training_tuples = [to_training_tuple(*self.replay_memory()) for _ in range(batch_size)]
+        return training_tuples
+        # for _ in range(batch_size):
+        #     (
+        #         sa,
+        #         y,
+        #     ) = self.replay_memory()  # Get state and action features, with the reward
+        #     sa_batch.append(jnp.array(sa))
+        #     y_batch.append(jnp.array(y))
+
+        # return jnp.array(sa_batch), jnp.array(y_batch)
 
     # Replay when needed, returns State features and action features along with reward
     def replay_memory(self, max_retry=100):
