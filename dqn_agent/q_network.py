@@ -179,9 +179,9 @@ class DeepQTrainingLoop:
 
         # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
-        evaluateLossAgent = jax.value_and_grad(self.training_op, argnums=0)
+        evaluateLossAgent = jax.value_and_grad(lambda params: self.training_op(params, sa_batch, y_batch), argnums=0)
         # TODO this is vmap'ed  over the batch axis
-        loss_agent, param_grads_agent = evaluateLossAgent(self.params_agent, sa_batch, y_batch)
+        loss_agent, param_grads_agent = evaluateLossAgent(self.params_agent)
 
         # self.params_agent = UpdateWeights(
         #     self.params_agent, param_grads_agent, learning_rate
