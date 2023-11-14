@@ -75,7 +75,7 @@ FLAGS.DEFINE_integer(
 )
 FLAGS.DEFINE_integer("start_offset", 0, "simulation start datetime offset (days)")
 
-FLAGS.DEFINE_integer("days", 0, "simulation days")
+FLAGS.DEFINE_integer("days", 1, "simulation days")
 
 FLAGS.DEFINE_integer("n_diffusions", 3, "number of diffusion convolution")
 FLAGS.DEFINE_integer("batch_size", 128, "number of samples in a batch for SGD")
