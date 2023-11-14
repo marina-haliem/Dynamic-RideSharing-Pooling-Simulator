@@ -139,14 +139,13 @@ class DeepQTrainingLoop:
     def restore_model(self, ckpt_dir="model", name="dqn_agent"):
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
-    def training_op(self, sa_input_batch, y_batch):
-        q_values = self.applyDQN.apply(self.params_agent, self.rng, sa_input_batch)
+    def training_op(self, params, sa_input_batch, y_batch):
         # q_values = self.applyDQN.apply(sa_batch)
         # q_value = jnp.sum(q_values, axis=1)
-        loss = jnp.mean(jnp.square(y_batch - q_values))
+        q_values = self.applyDQN.apply(params, self.rng, sa_input_batch)
+        # return the loss
+        return jnp.mean(jnp.square(y_batch - q_values))
 
-        # Type signature
-        return loss
 
     def run_cyclic_updates(self, params_agent):
         self.n_steps += 1
@@ -180,9 +179,9 @@ class DeepQTrainingLoop:
 
         # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
-        evaluateLossAgent = jax.value_and_grad(self.training_op)
+        evaluateLossAgent = jax.value_and_grad(self.training_op, argnums=0)
         # TODO this is vmap'ed  over the batch axis
-        loss_agent, param_grads_agent = evaluateLossAgent(sa_batch, y_batch)
+        loss_agent, param_grads_agent = evaluateLossAgent(self.params_agent, sa_batch, y_batch)
 
         # self.params_agent = UpdateWeights(
         #     self.params_agent, param_grads_agent, learning_rate
