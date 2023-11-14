@@ -142,7 +142,7 @@ class DeepQTrainingLoop:
     def restore_model(self, ckpt_dir="model", name="dqn_agent"):
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
-    def training_op(self, params, training_tuples:List[TrainingTuple]):
+    def training_op(self, params, training_tuples):
 
         sa_data = jnp.array([t.state_action_features for t in training_tuples])
         rewards = jnp.array([t.reward for t in training_tuples])
