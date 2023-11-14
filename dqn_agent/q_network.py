@@ -135,7 +135,7 @@ class DeepQTrainingLoop:
         # self.conv_net = hk.transform(CNN)
         self.applyDQN = hk.transform(compute_q_values)
 
-        self.applyDQN.apply = jax.jit(self.applyDQN.apply)
+        # self.applyDQN.apply = jax.jit(self.applyDQN.apply)
 
         # paramsCNN = self.conv_net.init(self.rng, self.X_train[:5])
         sa_input = jnp.array([s_features + a_feature for a_feature in a_features])
