@@ -155,14 +155,15 @@ class DeepQTrainingLoop:
         sa_data = jnp.array([t.state_action_features for t in training_tuples])
         rewards = jnp.array([t.reward for t in training_tuples])
 
-        jax.debug.print("PARAMS ARE => {p}", p=params)
-        jax.debug.print("SA_BATCH ARE => {p}", p=sa_data)
-        jax.debug.print("REWARDS ARE => {p}", p=rewards)
         checkify.check(bool(sa_data.shape), "SHOULD HAVE STATE - ACTION FEATURES")
         checkify.check(bool(rewards.shape), "SHOULD HAVE REWARDS")
 
         vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=1)
         q_values = vApply(sa_data)
+        jax.debug.print("PARAMS ARE => {p}", p=params)
+        jax.debug.print("SA_BATCH ARE => {p}", p=sa_data)
+        jax.debug.print("REWARDS ARE => {p}", p=rewards)
+        jax.debug.print("Q_VALUES ARE => {p}", p=q_values)
         return mse_loss(q_values, rewards)
         # vLoss = jax.vmap(mse_loss, in_axes=(0,0))
         # return vLoss(q_values, rewards)
