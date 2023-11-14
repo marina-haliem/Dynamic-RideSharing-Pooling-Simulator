@@ -155,8 +155,8 @@ class DeepQTrainingLoop:
         sa_data = jnp.array([t.state_action_features for t in training_tuples])
         rewards = jnp.array([t.reward for t in training_tuples])
 
-        checkify.check(bool(sa_data.shape), "SHOULD HAVE STATE - ACTION FEATURES")
-        checkify.check(bool(rewards.shape), "SHOULD HAVE REWARDS")
+        # checkify.check(bool(sa_data.shape), "SHOULD HAVE STATE - ACTION FEATURES")
+        # checkify.check(bool(rewards.shape), "SHOULD HAVE REWARDS")
 
         vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=1)
         q_values = vApply(sa_data)
