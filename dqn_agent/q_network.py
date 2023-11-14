@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import List
 from simulator import settings
 from simulator.settings import FLAGS
@@ -89,10 +90,8 @@ def UpdateWeights(weights, gradients, learning_rate):
     return weights - learning_rate * gradients
 
 
-def save(ckpt_dir: str, state) -> None:
-    if not os.path.exists(ckpt_dir):
-        os.mkdir(ckpt_dir)
-
+def save(ckpt_dir: Path, state) -> None:
+    os.makedirs(ckpt_dir, exist_ok=True)
     with open(os.path.join(ckpt_dir, "arrays.npy"), "wb") as f:
         for x in jax.tree_leaves(state):
             np.save(f, x, allow_pickle=False)
@@ -101,7 +100,7 @@ def save(ckpt_dir: str, state) -> None:
     with open(os.path.join(ckpt_dir, "tree.pkl"), "wb") as f:
         pickle.dump(tree_struct, f)
 
-    print("Successfully saved: " + save_path)
+    # print("Successfully saved: " + save_path)
 
 
 def restore(ckpt_dir):
@@ -179,9 +178,9 @@ class DeepQTrainingLoop:
         if self.n_steps % settings.SAVE_INTERVAL == 0:
             # Note: Saving and loading models in Haiku is usually done outside the module.
             # You can use jax.tree_util.tree_flatten and tree_unflatten to save and load parameters.
-            save_path = "model"  # Replace with your saving logic
-            save(state=params_agent, ckpt_dir=BASE_PATH / "model/dqn_agent")
-            print("Successfully saved: " + save_path)
+            save_path = BASE_PATH / "model/dqn_agent"
+            save(state=params_agent, ckpt_dir=save_path)
+            sim_logger.log_dqn(f"Successfully saved: {save_path}")
 
         # Anneal epsilon linearly over time
         if self.n_steps < settings.EXPLORATION_STEPS:
