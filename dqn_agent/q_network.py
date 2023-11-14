@@ -163,8 +163,8 @@ class DeepQTrainingLoop:
         q_values = vApply(sa_data)
         # jax.debug.print("PARAMS ARE => {p}", p=params)
         # jax.debug.print("SA_BATCH ARE => {p}", p=sa_data)
-        jax.debug.print("REWARDS ARE => {p}", p=rewards)
-        jax.debug.print("Q_VALUES ARE => {p}", p=q_values)
+        # jax.debug.print("REWARDS ARE => {p}", p=rewards)
+        # jax.debug.print("Q_VALUES ARE => {p}", p=q_values)
         return mse_loss(q_values, rewards)
         # vLoss = jax.vmap(mse_loss, in_axes=(0,0))
         # return vLoss(q_values, rewards)
@@ -194,7 +194,7 @@ class DeepQTrainingLoop:
         ckpt_dir="model",
     ):
         # params = self.conv_net.init(self.rng, self.X_train[:5])
-        print("Starting Training...")
+        sim_logger.log_dqn("STARTING TRAINING...")
         # if not self.wasInitiated:
         #     params_agent = self.instatiateNets(load_prev=True)
 
@@ -221,6 +221,8 @@ class DeepQTrainingLoop:
 
         losses_agent.append(loss_agent)  ## Record Loss
         # return losses_agent, self.params_agent
+
+        sim_logger.log_dqn("TRAINING STEP DONE...")
         return losses_agent
 
     def save_model(self, params_classifier, params_embedder, ckpt_dir="model"):
