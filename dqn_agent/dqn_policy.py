@@ -8,7 +8,7 @@ from config.settings import GLOBAL_STATE_UPDATE_CYCLE, MIN_DISPATCH_CYCLE
 from dqn_agent.feature_constructor import FeatureConstructor
 
 import jax.numpy as jnp
-
+import jax
 # from dqn_agent.q_network import DeepQNetwork, FittingDeepQNetwork
 
 from dqn_agent.q_network import DeepQTrainingLoop
@@ -21,8 +21,8 @@ from novelties import status_codes
 from simulator.models.vehicle.vehicle_repository import VehicleRepository
 
 class TrainingTuple(NamedTuple):
-    state_action_features: jnp.DeviceArray
-    reward: jnp.DeviceArray
+    state_action_features: jax.Array
+    reward: jax.Array
 
 def to_training_tuple(sa, y):
     return TrainingTuple(state_action_features=sa, reward=y)
@@ -294,9 +294,9 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
     # TODO Here update the training loop
     def train_network(self, batch_size, n_iterations=1):
         for _ in range(n_iterations):
-            sa_batch, y_batch = self.build_batch(batch_size)
+            training_tuples = self.build_batch(batch_size)
             losses_agent, params_agent = self.training_loop.training_step(
-                sa_batch, y_batch
+                training_tuples
             )
             self.training_loop.run_cyclic_updates(
                 params_agent=params_agent
