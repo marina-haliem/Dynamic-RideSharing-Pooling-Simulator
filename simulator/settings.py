@@ -58,14 +58,14 @@ FLAGS.DEFINE_string("load_network", "", "load saved dqn_agent network.")
 FLAGS.DEFINE_string("load_memory", "", "load saved replay memory.")
 
 FLAGS.DEFINE_boolean("train", True, "run training dqn_agent network.")
-FLAGS.DEFINE_boolean("verbose", False, "print log verbosely.")
+FLAGS.DEFINE_boolean("verbose", True, "print log verbosely.")
 
 FLAGS.DEFINE_boolean("enable_pooling", True, "Enable RideSharing/CarPooling")
 FLAGS.DEFINE_boolean("enable_pricing", True, "Enable Pricing Novelty")
 
-FLAGS.DEFINE_integer("vehicles", 8000, "number of vehicles")
+FLAGS.DEFINE_integer("vehicles", 200, "number of vehicles")
 FLAGS.DEFINE_integer("dummy_vehicles", 0, "number of vehicles using dummy agent")
-FLAGS.DEFINE_integer("dqn_vehicles", 8000, "number of vehicles using dqn agent")
+FLAGS.DEFINE_integer("dqn_vehicles", 200, "number of vehicles using dqn agent")
 
 FLAGS.DEFINE_integer(
     "pretrain", 0, "run N pretraining steps using pickled experience memory."
@@ -75,7 +75,7 @@ FLAGS.DEFINE_integer(
 )
 FLAGS.DEFINE_integer("start_offset", 0, "simulation start datetime offset (days)")
 
-FLAGS.DEFINE_integer("days", 7, "simulation days")
+FLAGS.DEFINE_integer("days", 1, "simulation days")
 
 FLAGS.DEFINE_integer("n_diffusions", 3, "number of diffusion convolution")
 FLAGS.DEFINE_integer("batch_size", 128, "number of samples in a batch for SGD")
