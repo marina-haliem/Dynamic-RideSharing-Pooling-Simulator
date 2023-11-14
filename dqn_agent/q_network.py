@@ -243,8 +243,8 @@ class DeepQTrainingLoop:
             self.instatiateNets(
                 load_prev=False, s_features=s_feature, a_features=a_features
             )
-        sim_logger.log_dqn(f"NETS INSTANTIATED PARAMS => {self.params_agent}")
-        sim_logger.log_dqn(f"STATE AND ACTION FEATURES => {s_feature} - {a_features}")
+        # sim_logger.log_dqn(f"NETS INSTANTIATED PARAMS => {self.params_agent}")
+        # sim_logger.log_dqn(f"STATE AND ACTION FEATURES => {s_feature} - {a_features}")
 
         sa_input = jnp.array([s_feature + a_feature for a_feature in a_features])
 
