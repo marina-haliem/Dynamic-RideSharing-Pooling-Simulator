@@ -63,9 +63,9 @@ FLAGS.DEFINE_boolean("verbose", True, "print log verbosely.")
 FLAGS.DEFINE_boolean("enable_pooling", True, "Enable RideSharing/CarPooling")
 FLAGS.DEFINE_boolean("enable_pricing", True, "Enable Pricing Novelty")
 
-FLAGS.DEFINE_integer("vehicles", 200, "number of vehicles")
+FLAGS.DEFINE_integer("vehicles", 50, "number of vehicles")
 FLAGS.DEFINE_integer("dummy_vehicles", 0, "number of vehicles using dummy agent")
-FLAGS.DEFINE_integer("dqn_vehicles", 200, "number of vehicles using dqn agent")
+FLAGS.DEFINE_integer("dqn_vehicles", 50, "number of vehicles using dqn agent")
 
 FLAGS.DEFINE_integer(
     "pretrain", 0, "run N pretraining steps using pickled experience memory."
@@ -80,7 +80,7 @@ FLAGS.DEFINE_integer("days", 1, "simulation days")
 FLAGS.DEFINE_integer("n_diffusions", 3, "number of diffusion convolution")
 FLAGS.DEFINE_integer("batch_size", 128, "number of samples in a batch for SGD")
 FLAGS.DEFINE_string("tag", "DARM", "tag used to identify logs")
-FLAGS.DEFINE_boolean("log_vehicle", False, "whether to log vehicle states")
+FLAGS.DEFINE_boolean("log_vehicle", True, "whether to log vehicle states")
 FLAGS.DEFINE_boolean("use_osrm", False, "whether to use OSRM")
 FLAGS.DEFINE_boolean(
     "average", False, "whether to use diffusion filter or average filter"
@@ -118,7 +118,7 @@ INITIAL_MEMORY_SIZE = (
 )
 NUM_SUPPLY_DEMAND_HISTORY = 7 * 24 * 3600 / GLOBAL_STATE_UPDATE_CYCLE + 1  # = 1 week
 MAX_MEMORY_SIZE = 10000000  # Number of replay memory the dummy_agent uses for training
-SAVE_INTERVAL = 1000  # The frequency with which the network is saved
+SAVE_INTERVAL = 100  # The frequency with which the network is saved
 TARGET_UPDATE_INTERVAL = 50  # The frequency with which the target network is updated
 LEARNING_RATE = 0.00025  # Learning rate used by RMSProp
 MOMENTUM = 0.95  # Momentum used by RMSProp
