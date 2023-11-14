@@ -49,7 +49,7 @@ def compute_q_values(sa_input):
     # What was intended here was to concat everything into the input!
     # sa_input = s_feature + a_features
     q_values = DeepQNetwork()(sa_input)
-    return q_values[:, 0]
+    return q_values
 
 
 # Get action associated with max q-value
