@@ -55,7 +55,6 @@ class DeepQNetwork(hk.Module):
         return hk.Linear(1, name="q_value", with_bias=True)(x)
 
 
-@jax.jit
 def compute_q_values(sa_input):
     # s_feature = jnp.array(s_feature)
     # What was intended here was to concat everything into the input!
@@ -135,6 +134,8 @@ class DeepQTrainingLoop:
 
         # self.conv_net = hk.transform(CNN)
         self.applyDQN = hk.transform(compute_q_values)
+
+        self.applyDQN.apply = jax.jit(self.applyDQN.apply)
 
         # paramsCNN = self.conv_net.init(self.rng, self.X_train[:5])
         sa_input = jnp.array([s_features + a_feature for a_feature in a_features])
