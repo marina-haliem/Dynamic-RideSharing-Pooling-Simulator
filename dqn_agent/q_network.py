@@ -55,6 +55,7 @@ class DeepQNetwork(hk.Module):
         return hk.Linear(1, name="q_value", with_bias=True)(x)
 
 
+@jax.jit
 def compute_q_values(sa_input):
     # s_feature = jnp.array(s_feature)
     # What was intended here was to concat everything into the input!
@@ -158,7 +159,9 @@ class DeepQTrainingLoop:
         # checkify.check(bool(sa_data.shape), "SHOULD HAVE STATE - ACTION FEATURES")
         # checkify.check(bool(rewards.shape), "SHOULD HAVE REWARDS")
 
-        vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=0)
+        vApply = jax.jit(
+            jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=0)
+        )
         q_values = vApply(sa_data)
         # jax.debug.print("PARAMS ARE => {p}", p=params)
         # jax.debug.print("SA_BATCH ARE => {p}", p=sa_data)
