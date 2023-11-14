@@ -184,14 +184,14 @@ class DeepQTrainingLoop:
         # TODO this is vmap'ed  over the batch axis
         loss_agent, param_grads_agent = evaluateLossAgent(sa_batch, y_batch)
 
-        self.params_agent = UpdateWeights(
-            self.params_agent, param_grads_agent, learning_rate
-        )
-        # self.params_agent = jax.tree_map(
-        #     lambda x, y: UpdateWeights(x, y, learning_rate),
-        #     self.params_agent,
-        #     param_grads_agent,
-        # )  ## Update Params
+        # self.params_agent = UpdateWeights(
+        #     self.params_agent, param_grads_agent, learning_rate
+        # )
+        self.params_agent = jax.tree_map(
+            lambda x, y: UpdateWeights(x, y, learning_rate),
+            self.params_agent,
+            param_grads_agent,
+        )  ## Update Params
 
         losses_agent.append(loss_agent)  ## Record Loss
         return losses_agent, self.params_agent
