@@ -18,9 +18,11 @@ import jax.numpy as jnp
 import pickle
 import tqdm
 
+
 @jax.jit
 def mse_loss(y_values, q_values):
     return jnp.mean(jnp.square(y_values - q_values))
+
 
 # Standrad Implementation of DeepQNetworks "Parent Class"
 # STATE SPACE STATE_FEATURES x ACTION_FEATURES => REWARD
@@ -143,16 +145,14 @@ class DeepQTrainingLoop:
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
     def training_op(self, params, training_tuples):
-
         sa_data = jnp.array([t.state_action_features for t in training_tuples])
         rewards = jnp.array([t.reward for t in training_tuples])
 
-        vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=0)
+        vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=1)
         q_values = vApply(sa_data)
         return mse_loss(q_values, rewards)
         # vLoss = jax.vmap(mse_loss, in_axes=(0,0))
         # return vLoss(q_values, rewards)
-
 
     def run_cyclic_updates(self, params_agent):
         self.n_steps += 1
@@ -185,7 +185,13 @@ class DeepQTrainingLoop:
 
         # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
-        evaluateLossAgent = jax.value_and_grad(lambda params: self.training_op(params, training_tuples), argnums=0)
+        sim_logger.log_dqn(f"TRAINING TUPLES => {training_tuples}")
+
+        jax.debug.breakpoint()
+        jax.debug.print("training tuples => {y}", y=training_tuples)
+        evaluateLossAgent = jax.value_and_grad(
+            lambda params: self.training_op(params, training_tuples)
+        )
         # TODO this is vmap'ed  over the batch axis
         loss_agent, param_grads_agent = evaluateLossAgent(self.params_agent)
 
