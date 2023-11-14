@@ -143,7 +143,8 @@ class DeepQTrainingLoop:
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
     def training_op(self, params, sa_input_batch, y_batch):
-        q_values = self.applyDQN.apply(params, self.rng, sa_input_batch)
+        vApply = jax.vmap(lambda x: self.applyDQN.apply(params, self.rng, x), in_axes=1)
+        q_values = vApply(sa_input_batch)
         vLoss = jax.vmap(mse_loss, in_axes=(0,0))
         return vLoss(q_values, y_batch)
 
