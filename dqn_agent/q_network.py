@@ -17,6 +17,11 @@ import jax
 import jax.numpy as jnp
 from jax.experimental import checkify
 
+from jax import config
+
+config.update("jax_debug_nans", True)
+config.update("jax_disable_jit", True)
+
 import pickle
 import tqdm
 
