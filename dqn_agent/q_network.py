@@ -201,7 +201,7 @@ class DeepQTrainingLoop:
         losses_agent = []
         # sim_logger.log_dqn(f"TRAINING TUPLES => {training_tuples}")
 
-        jax.debug.breakpoint()
+        # jax.debug.breakpoint()
         jax.debug.print("training tuples => {y}", y=training_tuples)
         evaluateLossAgent = jax.value_and_grad(
             lambda params: self.training_op(params, training_tuples)
