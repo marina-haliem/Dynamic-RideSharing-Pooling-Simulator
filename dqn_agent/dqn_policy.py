@@ -300,11 +300,9 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
     def train_network(self, batch_size, n_iterations=1):
         for _ in range(n_iterations):
             training_tuples = self.build_batch(batch_size)
-            losses_agent, params_agent = self.training_loop.training_step(
-                training_tuples
-            )
+            losses_agent = self.training_loop.training_step(training_tuples)
             self.training_loop.run_cyclic_updates(
-                params_agent=params_agent
+                params_agent=self.training_loop.params_agent
             )  # Update target network
 
         # return loss_sum / n_iterations, q_max_sum / n_iterations
