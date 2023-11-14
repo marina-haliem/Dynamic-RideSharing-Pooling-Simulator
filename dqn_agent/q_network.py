@@ -174,7 +174,7 @@ class DeepQTrainingLoop:
 
     def training_step(
         self,
-            training_tuples,
+        training_tuples,
         learning_rate=1 / 1e4,
         ckpt_dir="model",
     ):
@@ -199,7 +199,8 @@ class DeepQTrainingLoop:
         )  ## Update Params
 
         losses_agent.append(loss_agent)  ## Record Loss
-        return losses_agent, self.params_agent
+        # return losses_agent, self.params_agent
+        return losses_agent
 
     def save_model(self, params_classifier, params_embedder, ckpt_dir="model"):
         save(os.path.join(ckpt_dir, "classifier"), params_classifier)

@@ -9,6 +9,7 @@ from dqn_agent.feature_constructor import FeatureConstructor
 
 import jax.numpy as jnp
 import jax
+
 # from dqn_agent.q_network import DeepQNetwork, FittingDeepQNetwork
 
 from dqn_agent.q_network import DeepQTrainingLoop
@@ -20,12 +21,15 @@ from common import mesh
 from novelties import status_codes
 from simulator.models.vehicle.vehicle_repository import VehicleRepository
 
+
 class TrainingTuple(NamedTuple):
     state_action_features: jax.Array
     reward: jax.Array
 
+
 def to_training_tuple(sa, y):
     return TrainingTuple(state_action_features=sa, reward=y)
+
 
 class DQNDispatchPolicy(DispatchPolicy):
     def __init__(self):
@@ -240,7 +244,8 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
 
         if len(self.supply_demand_history) > settings.INITIAL_MEMORY_SIZE:
             # TODO Update everything
-            average_loss, average_q_max = self.train_network(FLAGS.batch_size)
+            self.train_network(FLAGS.batch_size)
+            # average_loss, average_q_max = self.train_network(FLAGS.batch_size)
             # print("iterations : {}, average_loss : {:.3f}, average_q_max : {:.3f}".format(
             #     self.q_network.n_steps, average_loss, average_q_max), flush=True)
 
@@ -309,7 +314,9 @@ class DQNDispatchPolicyLearner(DQNDispatchPolicy):
         sa_batch = []
         y_batch = []
 
-        training_tuples = [to_training_tuple(*self.replay_memory()) for _ in range(batch_size)]
+        training_tuples = [
+            to_training_tuple(*self.replay_memory()) for _ in range(batch_size)
+        ]
         return training_tuples
         # for _ in range(batch_size):
         #     (
