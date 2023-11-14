@@ -18,6 +18,9 @@ import jax.numpy as jnp
 import pickle
 import tqdm
 
+@jax.jit
+def mse_loss(y_values, q_values):
+    return jnp.mean(jnp.square(y_values - q_values))
 
 # Standrad Implementation of DeepQNetworks "Parent Class"
 # STATE SPACE STATE_FEATURES x ACTION_FEATURES => REWARD
@@ -140,11 +143,9 @@ class DeepQTrainingLoop:
         return restore(BASE_PATH / f"{ckpt_dir}/{name}")
 
     def training_op(self, params, sa_input_batch, y_batch):
-        # q_values = self.applyDQN.apply(sa_batch)
-        # q_value = jnp.sum(q_values, axis=1)
         q_values = self.applyDQN.apply(params, self.rng, sa_input_batch)
-        # return the loss
-        return jnp.mean(jnp.square(y_batch - q_values))
+        vLoss = jax.vmap(mse_loss, in_axes=(0,0))
+        return vLoss(q_values, y_batch)
 
 
     def run_cyclic_updates(self, params_agent):
