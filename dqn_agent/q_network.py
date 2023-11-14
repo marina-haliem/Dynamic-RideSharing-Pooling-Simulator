@@ -199,7 +199,7 @@ class DeepQTrainingLoop:
 
         # First argument must be the weights to take the gradients with respect to!
         losses_agent = []
-        sim_logger.log_dqn(f"TRAINING TUPLES => {training_tuples}")
+        # sim_logger.log_dqn(f"TRAINING TUPLES => {training_tuples}")
 
         jax.debug.breakpoint()
         jax.debug.print("training tuples => {y}", y=training_tuples)
