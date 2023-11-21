@@ -21,6 +21,16 @@ fig, ax = ox.plot_graph(
 
 for route in routes:
     print(route)
+    route_nodes = [(lon, lat) for lat, lon in route]
+    ox.plot_route_folium(
+        G,
+        route_nodes,
+        route_map=None,
+        route_color="red",
+        route_linewidth=4,
+        route_opacity=1,
+    )
+
     # route_nodes = [(point["lon"], point["lat"]) for point in route["geometry"]]
     # ox.plot_route_folium(
     #     G,
