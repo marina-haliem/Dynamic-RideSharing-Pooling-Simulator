@@ -19,7 +19,6 @@ fig, ax = ox.plot_graph(
     G, show=False, close=False, figsize=(10, 10), edge_color="black"
 )
 
-route_nodes = [(lon, lat) for lat, lon in route]
 ox.plot_route_folium(
     G,
     routes,
