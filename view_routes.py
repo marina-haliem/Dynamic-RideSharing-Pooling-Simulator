@@ -8,8 +8,12 @@ BASE = Path(__file__).parent
 with open(BASE / "data/routes.pkl", "rb") as f:
     routes = pickle.load(f)
 
+
 # Create a basemap for New York City
 G = ox.graph_from_place("New York City, New York, USA", network_type="drive")
+
+print(routes)
+print(G)
 
 # Plot each route on the map
 fig, ax = ox.plot_graph(
