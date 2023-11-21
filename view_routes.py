@@ -1,9 +1,11 @@
+from pathlib import Path
 import pickle
 import osmnx as ox
 import matplotlib.pyplot as plt
 
 # Load the routes from the pickle file
-with open("routes.pkl", "rb") as f:
+BASE = Path(__file__).parent
+with open(BASE / "data/routes.pkl", "rb") as f:
     routes = pickle.load(f)
 
 # Create a basemap for New York City
@@ -25,4 +27,4 @@ for route in routes:
         route_opacity=1,
     )
 
-plt.show()
+plt.savefig("routes.png", dpi=600)
