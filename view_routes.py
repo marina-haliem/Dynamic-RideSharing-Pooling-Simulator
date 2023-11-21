@@ -19,15 +19,16 @@ fig, ax = ox.plot_graph(
     G, show=False, close=False, figsize=(10, 10), edge_color="black"
 )
 
-# for route in routes:
-#     route_nodes = [(point["lon"], point["lat"]) for point in route["geometry"]]
-#     ox.plot_route_folium(
-#         G,
-#         route_nodes,
-#         route_map=None,
-#         route_color="red",
-#         route_linewidth=4,
-#         route_opacity=1,
-#     )
+for route in routes:
+    print(route)
+    # route_nodes = [(point["lon"], point["lat"]) for point in route["geometry"]]
+    # ox.plot_route_folium(
+    #     G,
+    #     route_nodes,
+    #     route_map=None,
+    #     route_color="red",
+    #     route_linewidth=4,
+    #     route_opacity=1,
+    # )
 
 plt.savefig("routes.png", dpi=600)
