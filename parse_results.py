@@ -12,7 +12,7 @@ from config.settings import DEFAULT_LOG_DIR
 # and other relevant stuff...
 import matplotlib.pyplot as plt
 
-# #### !IMPORTANT: Specify directory and log filenames here 
+# #### !IMPORTANT: Specify directory and log filenames here
 # Note that the provided names (below) are default names. They do not have to be changes unless you decided to rename files from multiple experiments.
 vehicle_log_file = "/sim/vehicle.log"
 customer_log_file = "/sim/customer.log"
@@ -51,14 +51,25 @@ print(df.head())
 ##### Generating plots of summary logs
 ## You can have more than one experiment that you want to compare, you can pass their relevant paths here to the first
 ## list argument
-summary_plots = l.plot_summary([DEFAULT_LOG_DIR], ["Number of Accepted Requests", "Average Travel Distance",
-												   "Occupancy Rate of Vehicles"], plt)
-summary_plots.savefig(DEFAULT_LOG_DIR+"/Summary.pdf", bbox_inches = 'tight')
-summary_plots.show()
+summary_plots = l.plot_summary(
+    [DEFAULT_LOG_DIR],
+    [
+        "Number of Accepted Requests",
+        "Average Travel Distance",
+        "Occupancy Rate of Vehicles",
+    ],
+    plt,
+)
+summary_plots.savefig(DEFAULT_LOG_DIR + "/Summary.pdf", bbox_inches="tight")
+# summary_plots.show()
 
 ##### Generating plots of relevant experiment metrics
-plt, df = l.plot_metrics([DEFAULT_LOG_DIR], ["Profit", "Cruising Time", "Occupancy Rate","Waiting Time", "Travel Distance"],plt)
-plt.savefig(DEFAULT_LOG_DIR+"/Metrics.pdf", bbox_inches = 'tight')
+plt, df = l.plot_metrics(
+    [DEFAULT_LOG_DIR],
+    ["Profit", "Cruising Time", "Occupancy Rate", "Waiting Time", "Travel Distance"],
+    plt,
+)
+plt.savefig(DEFAULT_LOG_DIR + "/Metrics.pdf", bbox_inches="tight")
 # plt.show()
 
 # #### We may also look at the metrics as a pandas dataframe
