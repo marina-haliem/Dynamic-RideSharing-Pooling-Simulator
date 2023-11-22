@@ -18,7 +18,7 @@ class Vehicle(object):
         status_codes.V_CRUISING: Cruising(),
         status_codes.V_OCCUPIED: Occupied(),
         status_codes.V_ASSIGNED: Assigned(),
-        status_codes.V_OFF_DUTY: OffDuty()
+        status_codes.V_OFF_DUTY: OffDuty(),
     }
 
     def __init__(self, vehicle_state):
@@ -27,12 +27,20 @@ class Vehicle(object):
         self.state = vehicle_state
         # print(self.state.type, self.state.max_capacity)
         self.__behavior = self.behavior_models[vehicle_state.status]
-        self.onboard_customers = []       # A vehicle can have a list of customers  #Customers already picked up
-        self.accepted_customers = []        # Customers to be picked up
-        self.ordered_pickups_dropoffs_ids = []  # Queue of IDs to determine next customer to be picked up or dropped off
-        self.pickup_flags = []  # Queue of Flags to determine whether next stop is pickup or dropof
+        self.onboard_customers = (
+            []
+        )  # A vehicle can have a list of customers  #Customers already picked up
+        self.accepted_customers = []  # Customers to be picked up
+        self.ordered_pickups_dropoffs_ids = (
+            []
+        )  # Queue of IDs to determine next customer to be picked up or dropped off
+        self.pickup_flags = (
+            []
+        )  # Queue of Flags to determine whether next stop is pickup or dropof
         self.current_plan = []  # Queue of locations determining th current planned trip
-        self.current_plan_routes = []  # Queue of routes corresponding to each location on the current trip
+        self.current_plan_routes = (
+            []
+        )  # Queue of routes corresponding to each location on the current trip
         self.nxt_stop = None
         self.__customers_ids = []
         self.__route_plan = []
@@ -45,7 +53,7 @@ class Vehicle(object):
         self.tmp_capacity = 0
         self.routing_engine = RoutingEngine.create_engine()
         self.q_action_dict = {}
-        self.duration = np.zeros(len(self.behavior_models))     # Duration for each state
+        self.duration = np.zeros(len(self.behavior_models))  # Duration for each state
 
     # state changing methods
     def step(self, timestep):
@@ -63,7 +71,11 @@ class Vehicle(object):
         if self.state.status == status_codes.V_IDLE:
             self.duration[status_codes.V_IDLE] += timestep
 
-        if self.state.status == status_codes.V_IDLE | self.state.status == status_codes.V_CRUISING:
+        if (
+            self.state.status
+            == status_codes.V_IDLE | self.state.status
+            == status_codes.V_CRUISING
+        ):
             self.state.idle_duration += timestep
             # self.state.total_idle += timestep
         else:
@@ -79,7 +91,9 @@ class Vehicle(object):
     # Calculate Vehicle's spped, based on route and ETA
     def compute_speed(self, route, triptime):
         lats, lons = zip(*route)
-        distance = geoutils.great_circle_distance(lats[:-1], lons[:-1], lats[1:], lons[1:])     # Distance in meters
+        distance = geoutils.great_circle_distance(
+            lats[:-1], lons[:-1], lats[1:], lons[1:]
+        )  # Distance in meters
         speed = sum(distance) / triptime
         # print("Dispatch!")
         # self.state.travel_dist += sum(distance)
@@ -87,11 +101,17 @@ class Vehicle(object):
 
     # Calculate fuel consumption based on travel distance, mileage and gas prices
     def compute_fuel_consumption(self):
-        return float((self.state.travel_dist * (self.state.gas_price / (self.state.mileage * 1000.0)))/100.0)
+        return float(
+            (
+                self.state.travel_dist
+                * (self.state.gas_price / (self.state.mileage * 1000.0))
+            )
+            / 100.0
+        )
 
     # Calculate profit, after subtracting fuel cost from earnings
     def compute_profit(self):
-        cost = (self.compute_fuel_consumption()/100.0)
+        cost = self.compute_fuel_consumption() / 100.0
         return self.earnings - cost
 
     # Perform the dispatch by moving to destination
@@ -104,7 +124,7 @@ class Vehicle(object):
         self.__change_to_cruising()
         self.__log()
 
-    # Set destination to assigned customer's pickup location, 
+    # Set destination to assigned customer's pickup location,
     def head_for_customer(self, triptime, customer_id, route):
         assert self.__behavior.available
         # self.__reset_plan()
@@ -113,7 +133,7 @@ class Vehicle(object):
         self.__customers_ids.append(customer_id)
 
         # if not FLAGS.enable_pooling:
-            # print("Head, not pooling!")
+        # print("Head, not pooling!")
         pick_drop = self.pickup_flags[0]
         if pick_drop == 1:
             self.change_to_assigned()
@@ -132,12 +152,12 @@ class Vehicle(object):
     def take_rest(self, duration):
         assert self.__behavior.available
         self.reset_plan()
-        self.state.idle_duration = 0        # Resetting the idle time
+        self.state.idle_duration = 0  # Resetting the idle time
         self.set_destination(self.get_location(), duration)
         self.__change_to_off_duty()
         self.__log()
 
-    # Upon reaching pickup location, adding the customer to the on-board customers and heading to next customer. 
+    # Upon reaching pickup location, adding the customer to the on-board customers and heading to next customer.
     def pickup(self, customer):
         # print("At Pickup!", self.get_location(), " -> ", customer.get_origin())
         # print(self.get_id(), "Pickup: ", self.current_plan, self.ordered_pickups_dropoffs_ids)
@@ -172,11 +192,18 @@ class Vehicle(object):
                 self.state.lat, self.state.lon = self.nxt_stop
                 if pick_drop == 1:
                     if self.get_location() != CustomerRepository.get(id).get_origin():
-                        self.state.lat, self.state.lon = CustomerRepository.get(id).get_origin()
+                        self.state.lat, self.state.lon = CustomerRepository.get(
+                            id
+                        ).get_origin()
                     self.pickup(CustomerRepository.get(id))
                 else:
-                    if self.get_location() != CustomerRepository.get(id).get_destination():
-                        self.state.lat, self.state.lon = CustomerRepository.get(id).get_destination()
+                    if (
+                        self.get_location()
+                        != CustomerRepository.get(id).get_destination()
+                    ):
+                        self.state.lat, self.state.lon = CustomerRepository.get(
+                            id
+                        ).get_destination()
                     self.dropoff(CustomerRepository.get(id))
             else:
                 speed = self.compute_speed(route, triptime)
@@ -195,7 +222,7 @@ class Vehicle(object):
     def dropoff(self, customer):
         self.onboard_customers.remove(customer)
         customer.get_off()
-        
+
         self.state.current_capacity -= 1
         self.tmp_capacity -= 1
 
@@ -226,11 +253,18 @@ class Vehicle(object):
                 self.state.lat, self.state.lon = self.nxt_stop
                 if pick_drop == 1:
                     if self.get_location() != CustomerRepository.get(id).get_origin():
-                        self.state.lat, self.state.lon = CustomerRepository.get(id).get_origin()
+                        self.state.lat, self.state.lon = CustomerRepository.get(
+                            id
+                        ).get_origin()
                     self.pickup(CustomerRepository.get(id))
                 else:
-                    if self.get_location() != CustomerRepository.get(id).get_destination():
-                        self.state.lat, self.state.lon = CustomerRepository.get(id).get_destination()
+                    if (
+                        self.get_location()
+                        != CustomerRepository.get(id).get_destination()
+                    ):
+                        self.state.lat, self.state.lon = CustomerRepository.get(
+                            id
+                        ).get_destination()
                     self.dropoff(CustomerRepository.get(id))
             else:
                 # print("Dropoff: ", len(self.current_plan), len(self.ordered_pickups_dropoffs_ids))
@@ -298,7 +332,11 @@ class Vehicle(object):
         return customer_id
 
     def to_string(self):
-        s = str(getattr(self.state, 'id')) + " Capacity: " + str(self.state.current_capacity)
+        s = (
+            str(getattr(self.state, "id"))
+            + " Capacity: "
+            + str(self.state.current_capacity)
+        )
         return s
 
     def print_vehicle(self):
@@ -324,7 +362,11 @@ class Vehicle(object):
         return self.state.travel_dist
 
     def get_idle_duration(self):
-        dur = self.working_time - self.duration[status_codes.V_OCCUPIED] - self.duration[status_codes.V_ASSIGNED]
+        dur = (
+            self.working_time
+            - self.duration[status_codes.V_OCCUPIED]
+            - self.duration[status_codes.V_ASSIGNED]
+        )
         # print(self.duration)
         return dur
 
@@ -393,5 +435,5 @@ class Vehicle(object):
         self.state.status = status
 
     def __log(self):
-        if FLAGS.log_vehicle:
-            sim_logger.log_vehicle_event(self.state.to_msg())
+        # if FLAGS.log_vehicle:
+        sim_logger.log_vehicle_event(self.state.to_msg())
