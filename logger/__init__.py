@@ -8,6 +8,7 @@ config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logging.
 
 class SimulationLogger(object):
     def setup_logging(self, env, path=config_path, level=logging.INFO):
+        print("SETTING UP LOGGER")
         with open(path, "rt") as f:
             config = yaml.safe_load(f.read())
         logging.config.dictConfig(config)
@@ -26,6 +27,7 @@ class SimulationLogger(object):
 
     def log_vehicle_event(self, msg):
         t = self.get_current_time()
+        self.log_dqn("{},{}".format(str(t), msg))
         self.vehicle_logger.info("{},{}".format(str(t), msg))
 
     def log_customer_event(self, msg):

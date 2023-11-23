@@ -1,3 +1,5 @@
+#!/home/bm69/miniforge3/envs/dsrp/bin/python
+
 # import sys
 # sys.path.insert(0, "/path/to/project")
 
@@ -157,16 +159,19 @@ if __name__ == "__main__":
             dispatch_policy,
             pricing_policy.PricingPolicy(),
         )
-        # Sim_experiment = simulator_driver(start_time, TIMESTEP, matching_policy.GreedyMatchingPolicy())
 
-        # header = "TimeStamp, Unix TIme, Vehicles, Occupied Vehicles, Requests, Matchings, Rejects, Accepts, Avg Wait Time per request, Avg Earnings, " \
-        #          "Avg Cost, Avg Profit for DQN, Avg Profit for dummy, Avg Total Dist, Avg Capacity per vehicle, Avg Idle Time"
-        # sim_logger.log_summary(header)
-        # header = "TimeStamp, Request ID, Status Code, Waiting_Time"
-        # sim_logger.log_customer_event(header)
-        # header = "V_id', V_lat, V_lon, Speed, Status, Dest_lat, Dest_lon, Type, Travel_Dist, Price_per_travel_m, Price_per_wait_min, Gas_price,"\
-        # "assigned_customer_id, Time_to_destination, Idle_Duration, Total_Idle, Current_Capacity, Max_Capacity, Driver_base_per_trip, Mileage"
-        # sim_logger.log_vehicle_event(header)
+        header = (
+            "TimeStamp, Unix TIme, Vehicles, Occupied Vehicles, Requests, Matchings, Rejects, Accepts, Avg Wait Time per request, Avg Earnings, "
+            "Avg Cost, Avg Profit for DQN, Avg Profit for dummy, Avg Total Dist, Avg Capacity per vehicle, Avg Idle Time"
+        )
+        sim_logger.log_summary(header)
+        header = "TimeStamp, Request ID, Status Code, Waiting_Time"
+        sim_logger.log_customer_event(header)
+        header = (
+            "V_id', V_lat, V_lon, Speed, Status, Dest_lat, Dest_lon, Type, Travel_Dist, Price_per_travel_m, Price_per_wait_min, Gas_price,"
+            "assigned_customer_id, Time_to_destination, Idle_Duration, Total_Idle, Current_Capacity, Max_Capacity, Driver_base_per_trip, Mileage"
+        )
+        sim_logger.log_vehicle_event(header)
 
         n_steps = int(3600 * 24 / TIMESTEP)
         buffer_steps = int(3600 / TIMESTEP)
@@ -381,6 +386,7 @@ if __name__ == "__main__":
                         avg_idle_time,
                     )
 
+                    print(summary)
                     sim_logger.log_summary(summary)
 
                     if FLAGS.verbose:
