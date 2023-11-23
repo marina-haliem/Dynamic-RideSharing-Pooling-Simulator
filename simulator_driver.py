@@ -1,5 +1,7 @@
-#import sys
-#sys.path.insert(0, "/path/to/project")
+#!/home/bm69/miniforge3/envs/dsrp/bin/python
+
+# import sys
+# sys.path.insert(0, "/path/to/project")
 
 
 import os
@@ -17,9 +19,16 @@ import simulator.simulator as sim
 from simulator.models.vehicle.vehicle_repository import VehicleRepository
 from novelties import agent_codes
 from dqn_agent.dqn_policy import DQNDispatchPolicy, DQNDispatchPolicyLearner
-from config.settings import TIMESTEP, MAP_WIDTH, MAP_HEIGHT, ENTERING_TIME_BUFFER,DEFAULT_LOG_DIR
+from config.settings import (
+    TIMESTEP,
+    MAP_WIDTH,
+    MAP_HEIGHT,
+    ENTERING_TIME_BUFFER,
+    DEFAULT_LOG_DIR,
+)
 from datetime import datetime
 import time
+
 
 def load():
     setup_base_log_dir(FLAGS.tag)
@@ -28,7 +37,7 @@ def load():
         print("Set training mode")
         # print(tf.__version__)
         dispatch_policy = DQNDispatchPolicyLearner()
-        dispatch_policy.build_q_network(load_network=FLAGS.load_network)
+        # dispatch_policy.training_loop.instatiateNets(False)
 
         if FLAGS.load_memory:
             # print(FLAGS.load_memory)
@@ -36,7 +45,9 @@ def load():
 
         if FLAGS.pretrain > 0:
             for i in range(FLAGS.pretrain):
-                average_loss, average_q_max = dispatch_policy.train_network(FLAGS.batch_size)
+                average_loss, average_q_max = dispatch_policy.train_network(
+                    FLAGS.batch_size
+                )
                 # print("iterations : {}, average_loss : {:.3f}, average_q_max : {:.3f}".format(
                 #     i, average_loss, average_q_max), flush=True)
                 dispatch_policy.q_network.write_summary(average_loss, average_q_max)
@@ -72,10 +83,13 @@ def setup_base_log_dir(base_log_dir):
         os.unlink(DEFAULT_LOG_DIR)
     os.symlink(base_log_dir, DEFAULT_LOG_DIR)
 
+
 class simulator_driver(object):
     # For DQN
-    def __init__(self, start_time, timestep, matching_policy, dispatch_policy, pricing_policy):
-    # def __init__(self, start_time, timestep, matching_policy):
+    def __init__(
+        self, start_time, timestep, matching_policy, dispatch_policy, pricing_policy
+    ):
+        # def __init__(self, start_time, timestep, matching_policy):
         self.simulator = sim.Simulator(start_time, timestep)
         # For DQN
         self.dqn_agent = DQN_Agent(pricing_policy, dispatch_policy)
@@ -86,10 +100,17 @@ class simulator_driver(object):
 
     # Assign vehicles to random initial locations
     def sample_initial_locations(self, t):
-        locations = [mesh.convert_xy_to_lonlat(x, y)[::-1] for x in range(MAP_WIDTH) for y in range(MAP_HEIGHT)]
+        locations = [
+            mesh.convert_xy_to_lonlat(x, y)[::-1]
+            for x in range(MAP_WIDTH)
+            for y in range(MAP_HEIGHT)
+        ]
         p = demand_loader.DemandLoader.load_demand_profile(t)
         p = p.flatten() / p.sum()
-        vehicle_locations = [locations[i] for i in np.random.choice(len(locations), size=FLAGS.vehicles, p=p)]
+        vehicle_locations = [
+            locations[i]
+            for i in np.random.choice(len(locations), size=FLAGS.vehicles, p=p)
+        ]
         # print("Num: ", len(vehicle_locations))
         return vehicle_locations
 
@@ -100,7 +121,9 @@ class simulator_driver(object):
         self.last_vehicle_id += n_vehicles
 
         t = self.simulator.get_current_time()
-        entering_time = np.random.uniform(t, t + ENTERING_TIME_BUFFER, n_vehicles).tolist()
+        entering_time = np.random.uniform(
+            t, t + ENTERING_TIME_BUFFER, n_vehicles
+        ).tolist()
         q = sorted(zip(entering_time, vehicle_ids, vehicle_locations))
         self.vehicle_queue = q
 
@@ -116,8 +139,7 @@ class simulator_driver(object):
                 break
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     start = time.time()
     # For DQN
     dispatch_policy = load()
@@ -130,24 +152,35 @@ if __name__ == '__main__':
         print("End Datetime  : {}".format(get_local_datetime(end_time)))
 
         # For DQN
-        Sim_experiment = simulator_driver(start_time, TIMESTEP, matching_policy.GreedyMatchingPolicy(), dispatch_policy, pricing_policy.PricingPolicy())
-        # Sim_experiment = simulator_driver(start_time, TIMESTEP, matching_policy.GreedyMatchingPolicy())
+        Sim_experiment = simulator_driver(
+            start_time,
+            TIMESTEP,
+            matching_policy.GreedyMatchingPolicy(),
+            dispatch_policy,
+            pricing_policy.PricingPolicy(),
+        )
 
-        # header = "TimeStamp, Unix TIme, Vehicles, Occupied Vehicles, Requests, Matchings, Rejects, Accepts, Avg Wait Time per request, Avg Earnings, " \
-        #          "Avg Cost, Avg Profit for DQN, Avg Profit for dummy, Avg Total Dist, Avg Capacity per vehicle, Avg Idle Time"
-        # sim_logger.log_summary(header)
-        # header = "TimeStamp, Request ID, Status Code, Waiting_Time"
-        # sim_logger.log_customer_event(header)
-        # header = "V_id', V_lat, V_lon, Speed, Status, Dest_lat, Dest_lon, Type, Travel_Dist, Price_per_travel_m, Price_per_wait_min, Gas_price,"\
-        # "assigned_customer_id, Time_to_destination, Idle_Duration, Total_Idle, Current_Capacity, Max_Capacity, Driver_base_per_trip, Mileage"
-        # sim_logger.log_vehicle_event(header)
+        header = (
+            "TimeStamp, Unix TIme, Vehicles, Occupied Vehicles, Requests, Matchings, Rejects, Accepts, Avg Wait Time per request, Avg Earnings, "
+            "Avg Cost, Avg Profit for DQN, Avg Profit for dummy, Avg Total Dist, Avg Capacity per vehicle, Avg Idle Time"
+        )
+        sim_logger.log_summary(header)
+        header = "TimeStamp, Request ID, Status Code, Waiting_Time"
+        sim_logger.log_customer_event(header)
+        header = (
+            "V_id', V_lat, V_lon, Speed, Status, Dest_lat, Dest_lon, Type, Travel_Dist, Price_per_travel_m, Price_per_wait_min, Gas_price,"
+            "assigned_customer_id, Time_to_destination, Idle_Duration, Total_Idle, Current_Capacity, Max_Capacity, Driver_base_per_trip, Mileage"
+        )
+        sim_logger.log_vehicle_event(header)
 
         n_steps = int(3600 * 24 / TIMESTEP)
         buffer_steps = int(3600 / TIMESTEP)
         # print(DB_HOST_PATH)
         # n = 0
         for _ in range(FLAGS.days):
-            vehicle_locations = Sim_experiment.sample_initial_locations(Sim_experiment.simulator.get_current_time() + 3600 * 3)
+            vehicle_locations = Sim_experiment.sample_initial_locations(
+                Sim_experiment.simulator.get_current_time() + 3600 * 3
+            )
             Sim_experiment.populate_vehicles(vehicle_locations)
             sum_avg_cust = 0
             # sum_avg_profit = 0
@@ -156,7 +189,9 @@ if __name__ == '__main__':
             sum_accepts = 0
             sum_rejects = 0
             prev_rejected_req = []
-            print("############################ SUMMARY ################################")
+            print(
+                "############################ SUMMARY ################################"
+            )
             for i in range(n_steps):
                 Sim_experiment.enter_market()
                 Sim_experiment.simulator.step()
@@ -171,7 +206,9 @@ if __name__ == '__main__':
                 if FLAGS.enable_pricing:
                     prev_df = pd.DataFrame()
                     for r in prev_rejected_req:
-                        r_df = pd.DataFrame({str(c):[float(getattr(r, c))] for c in col_names})
+                        r_df = pd.DataFrame(
+                            {str(c): [float(getattr(r, c))] for c in col_names}
+                        )
                         # print("B: ", len(requests), len(r_df))
                         requests = requests.append(r_df, ignore_index=True)
 
@@ -185,9 +222,17 @@ if __name__ == '__main__':
                 if FLAGS.enable_pricing:
                     # print("All: ", len(vehicles), m)
                     if len(vehicles) > 0:
-                        new_vehicles = vehicles.loc[[vehicle_id for vehicle_id in vehicles.index
-                        if VehicleRepository.get(vehicle_id).first_dispatched == 0]]
-                        startup_dispatch = Sim_experiment.dqn_agent.startup_dispatch(current_time, new_vehicles)
+                        new_vehicles = vehicles.loc[
+                            [
+                                vehicle_id
+                                for vehicle_id in vehicles.index
+                                if VehicleRepository.get(vehicle_id).first_dispatched
+                                == 0
+                            ]
+                        ]
+                        startup_dispatch = Sim_experiment.dqn_agent.startup_dispatch(
+                            current_time, new_vehicles
+                        )
                         Sim_experiment.simulator.dispatch_vehicles(startup_dispatch)
                         # print("Done", len(new_vehicles))
 
@@ -195,8 +240,13 @@ if __name__ == '__main__':
                     continue
                 else:
                     # print("V1: ", len(vehicles))
-                    m_commands, vehicles, num_matched = Sim_experiment.central_agent.get_match_commands(current_time,
-                                                                                                 vehicles, requests)
+                    (
+                        m_commands,
+                        vehicles,
+                        num_matched,
+                    ) = Sim_experiment.central_agent.get_match_commands(
+                        current_time, vehicles, requests
+                    )
                     # print("V2: ", len(vehicles))
 
                     # V_R_matching = defaultdict(list)
@@ -208,19 +258,28 @@ if __name__ == '__main__':
                     # print("DQN: ", len(dqn_v), " Dummy: ", len(dummy_v))
 
                     # For DQN and Dummy
-                    d1_commands = Sim_experiment.dummy_agent.get_dispatch_commands(current_time, dummy_v)
-                    d2_commands = Sim_experiment.dqn_agent.get_dispatch_commands(current_time, dqn_v)
+                    d1_commands = Sim_experiment.dummy_agent.get_dispatch_commands(
+                        current_time, dummy_v
+                    )
+                    d2_commands = Sim_experiment.dqn_agent.get_dispatch_commands(
+                        current_time, dqn_v
+                    )
                     # print("1: ", len(d1_commands), " 2: ", len(d2_commands))
 
                     all_commands = d1_commands + d2_commands
                     # print("A: ", len(all_commands), " 1: ", len(d1_commands), " 2: ", len(d2_commands))
 
-                    prev_rejected_req, accepted_commands, num_accepted = Sim_experiment.simulator.match_vehicles(
-                        m_commands, Sim_experiment.dqn_agent, Sim_experiment.dummy_agent)
+                    (
+                        prev_rejected_req,
+                        accepted_commands,
+                        num_accepted,
+                    ) = Sim_experiment.simulator.match_vehicles(
+                        m_commands, Sim_experiment.dqn_agent, Sim_experiment.dummy_agent
+                    )
                     # For DQN
                     Sim_experiment.simulator.dispatch_vehicles(all_commands)
 
-                    if (num_matched == 0):
+                    if num_matched == 0:
                         # print("ERR!", len(vehicles), len(requests), num_accepted, len(prev_rejected_req))
                         continue
 
@@ -243,20 +302,28 @@ if __name__ == '__main__':
 
                     if FLAGS.enable_pricing:
                         if len(accepted_commands) > 0:
-                            average_wt = np.mean([np.mean(list(command['duration'])) for command in
-                                                  accepted_commands]).astype(float)
+                            average_wt = np.mean(
+                                [
+                                    np.mean(list(command["duration"]))
+                                    for command in accepted_commands
+                                ]
+                            ).astype(float)
                         else:
                             average_wt = 0
                     else:
                         if num_matched > 0:
-                            average_wt = np.mean([command['duration'] for command in m_commands]).astype(int)
+                            average_wt = np.mean(
+                                [command["duration"] for command in m_commands]
+                            ).astype(int)
                         else:
                             average_wt = 0
 
                     # sum_avg_wait += average_wt
 
                     # Start time is a unix timesatmp, here we convert it to normal time
-                    readable_time = datetime.utcfromtimestamp(current_time).strftime('%Y-%m-%d %H:%M:%S')
+                    readable_time = datetime.utcfromtimestamp(current_time).strftime(
+                        "%Y-%m-%d %H:%M:%S"
+                    )
                     if FLAGS.enable_pricing:
                         rejected_requests = len(requests) - num_accepted
                         sum_accepts += num_accepted
@@ -266,40 +333,65 @@ if __name__ == '__main__':
                     # print("Total Rejected: ", rejected_requests)
                     sum_rejects += rejected_requests
 
-                    avg_total_dist = np.mean(list(v.travel_dist for index, v in net_v.iterrows()))
-                    avg_idle_time = np.mean(list(v.total_idle for index, v in net_v.iterrows()))
+                    avg_total_dist = np.mean(
+                        list(v.travel_dist for index, v in net_v.iterrows())
+                    )
+                    avg_idle_time = np.mean(
+                        list(v.total_idle for index, v in net_v.iterrows())
+                    )
                     # avg_idle_time = np.mean(list(v.get_idle_duration() for index, v in net_v.iterrows()))
-                    avg_earnings = np.mean(list(v.earnings for index, v in net_v.iterrows()))
+                    avg_earnings = np.mean(
+                        list(v.earnings for index, v in net_v.iterrows())
+                    )
                     avg_cost = np.mean(list(v.cost for index, v in net_v.iterrows()))
 
                     if len(dqn_v) > 0:
-                        avg_profit_dqn = np.mean(list(v.earnings - v.cost for index, v in dqn_v.iterrows()))
+                        avg_profit_dqn = np.mean(
+                            list(v.earnings - v.cost for index, v in dqn_v.iterrows())
+                        )
                     else:
                         avg_profit_dqn = 0
 
                     if len(dummy_v) > 0:
-                        avg_profit_dummy = np.mean(list(v.earnings - v.cost for index, v in dummy_v.iterrows()))
+                        avg_profit_dummy = np.mean(
+                            list(v.earnings - v.cost for index, v in dummy_v.iterrows())
+                        )
                     else:
                         avg_profit_dummy = 0
 
-                    matchings = np.sum([len(command["customer_id"]) for command in m_commands])
+                    matchings = np.sum(
+                        [len(command["customer_id"]) for command in m_commands]
+                    )
                     # print("P: ", avg_earnings-avg_cost, " P-DQN: ", avg_profit_dqn, " P-D: ", avg_profit_dummy)
 
                     # if average_wt != float(0):
                     #     average_wt /= len(accepted_commands)
 
                     summary = "{:s},{:d},{:d},{:d},{:d},{:d},{:d},{:d},{:.2f},{:.2f},{:.2f},{:.2f},{:.2f},{:.2f}, {:.2f}, {:.2f}".format(
-                            readable_time, current_time, len(net_v), len(net_v[net_v.status == status_codes.V_OCCUPIED]), len(requests), num_matched,
-                            rejected_requests, num_accepted, average_wt, avg_earnings, avg_cost, avg_profit_dqn, avg_profit_dummy, avg_total_dist,
-                            avg_cap, avg_idle_time)
+                        readable_time,
+                        current_time,
+                        len(net_v),
+                        len(net_v[net_v.status == status_codes.V_OCCUPIED]),
+                        len(requests),
+                        num_matched,
+                        rejected_requests,
+                        num_accepted,
+                        average_wt,
+                        avg_earnings,
+                        avg_cost,
+                        avg_profit_dqn,
+                        avg_profit_dummy,
+                        avg_total_dist,
+                        avg_cap,
+                        avg_idle_time,
+                    )
 
+                    print(summary)
                     sim_logger.log_summary(summary)
 
                     if FLAGS.verbose:
                         print("summary: ({})".format(summary), flush=True)
 
-
     if FLAGS.train:
         print("Dumping experience memory as pickle...")
         dispatch_policy.dump_experience_memory()
-

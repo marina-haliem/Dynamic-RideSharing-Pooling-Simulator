@@ -46,22 +46,22 @@ vehicle_log_cols = [
 customer_log_cols = ["t", "id", "status", "waiting_time"]
 
 summary_log_cols = [
-    "readable_time",        ####Human readable time
-    "t",                    ####Unix time
-    "n_vehicles_OnDuty",    ####On duty vehicles
+    "readable_time",  ####Human readable time
+    "t",  ####Unix time
+    "n_vehicles_OnDuty",  ####On duty vehicles
     "n_vehicles_Occupied",  ####Fully occupied vehicles
-    "n_requests",           ####Total number of requests
+    "n_requests",  ####Total number of requests
     "n_requests_assigned",  ####Number of requests assigned
     "n_rejected_requests",  ####Number of Rejected Requests
     "n_accepted_commands",  ####Number of Requests Accepted by customers
-    "average_wt",           ####Average Wait for all customers
-    "avg_earnings",         ####Average Earnings per vehicle
-    "avg_cost",             ####Average Cost per vehicle
-    "avg_profit_dqn",       ####Average Profit per vehicle using dqn agent
-    "avg_profit_dummy",     ####Average Profit per vehicle using dummy agent
-    "avg_total_dist",       ####Average total distance travelled by vehicles (dqn or dummy?)
-    "avg_cap",              ####Average SEATS occupancy per vehicle
-    "avg_idle_time",        ####Average idle time per vehicle
+    "average_wt",  ####Average Wait for all customers
+    "avg_earnings",  ####Average Earnings per vehicle
+    "avg_cost",  ####Average Cost per vehicle
+    "avg_profit_dqn",  ####Average Profit per vehicle using dqn agent
+    "avg_profit_dummy",  ####Average Profit per vehicle using dummy agent
+    "avg_total_dist",  ####Average total distance travelled by vehicles (dqn or dummy?)
+    "avg_cap",  ####Average SEATS occupancy per vehicle
+    "avg_idle_time",  ####Average idle time per vehicle
 ]
 
 score_log_cols = [
@@ -150,7 +150,9 @@ class LogAnalyzer(object):
         df["occupancy_rate"] = df.occupied / (df.working_hour * 3600) * 100
         df["reward"] = (
             df.earning
-            - (df.cruising + df.assigned + df.occupied) * DRIVING_COST / settings.TIMESTEP
+            - (df.cruising + df.assigned + df.occupied)
+            * DRIVING_COST
+            / settings.TIMESTEP
             - (df.working_time - df.offduty) * WORKING_COST / settings.TIMESTEP
         )
         df["revenue_per_hour"] = df.earning / df.working_hour
@@ -159,7 +161,7 @@ class LogAnalyzer(object):
         return df
 
     def get_customer_status(self, customer_df, bin_width=300):
-        """ Customer Status (discretized by time0 """
+        """Customer Status (discretized by time0"""
         customer_df["time_bin"] = self.add_time_bin(customer_df, bin_width)
         df = (
             customer_df.groupby(["time_bin", "status"])
@@ -169,27 +171,32 @@ class LogAnalyzer(object):
             .fillna(0)
         )
         df = df.rename(columns={2: "ride_on", 4: "rejected"})
-        df["total"] = sum([x for _, x in df.iteritems()])
+        # TODO maybe re write this
+        df["total"] = sum([x for _, x in df.items()])
         df.index = [time_utils.get_local_datetime(x) for x in df.index]
         return df
 
     def get_customer_waiting_time(self, customer_df, bin_width=300):
-        """ Customer Waiting time (discretized time) """
+        """Customer Waiting time (discretized time)"""
         customer_df["time_bin"] = self.add_time_bin(customer_df, bin_width)
-        df = customer_df[customer_df.status == 2].groupby("time_bin").waiting_time.mean()
+        df = (
+            customer_df[customer_df.status == 2].groupby("time_bin").waiting_time.mean()
+        )
         df.index = [time_utils.get_local_datetime(x) for x in df.index]
         return df
 
     def add_time_bin(self, df, bin_width):
-        """Helper function to discretize time from minutes into bins of 'bin_width' """
+        """Helper function to discretize time from minutes into bins of 'bin_width'"""
         start_time = df.t.min()
-        return ((df.t - start_time) / bin_width).astype(int) * int(bin_width) + start_time
+        return ((df.t - start_time) / bin_width).astype(int) * int(
+            bin_width
+        ) + start_time
 
     def numfmt(self, x, pos):
         if int(x / 1000) == 0:
-            s = '{}'.format(x / 1000.0)
+            s = "{}".format(x / 1000.0)
         else:
-            s = '{}'.format(int(x / 1000))
+            s = "{}".format(int(x / 1000))
         return s
 
     def plot_summary(self, paths, labels, plt):
@@ -215,13 +222,13 @@ class LogAnalyzer(object):
             summary = summary.groupby("t").mean().reset_index()
             # summary.t = [time_utils.get_local_datetime(t) for t in summary.t]
             # print(summary.t)
-            summary.t = [dt.datetime.fromtimestamp(t+10) for t in summary.t]
+            summary.t = [dt.datetime.fromtimestamp(t + 10) for t in summary.t]
             summary["day"] = [t.day for t in summary.t]
             years = md.YearLocator()  # every year
             months = md.MonthLocator()  # every month
             days = md.DayLocator()
             hrs = md.HourLocator()
-            xfmt = md.DateFormatter('| %a |')
+            xfmt = md.DateFormatter("| %a |")
 
             # Labels to add to the legend for each algorithm to compare
             if i == 0:
@@ -230,9 +237,9 @@ class LogAnalyzer(object):
             plt.subplot(131)
             # plt.subplot(len(paths), 3, +i * 2 + 1)
             # print(summary.t)
-            summary['rate'] = summary.n_accepted_commands/summary.n_requests
+            summary["rate"] = summary.n_accepted_commands / summary.n_requests
             plt.plot(summary.t, summary.n_accepted_commands, label=l)
-            
+
             # if i == 0:
             #     plt.plot(summary.t, summary.n_requests, linestyle=":")
 
@@ -255,7 +262,7 @@ class LogAnalyzer(object):
             plt.title(labels[0])
             # plt.xlabel("simulation time (yy-mm-dd hr:min:sec)")
             plt.xlabel("Simulation Time (hrs in days)")
-            plt.xticks(ha='left')
+            plt.xticks(ha="left")
             # plt.ylim([0, 610])
             ax = plt.gca()
             ax.set_xticks(summary.t)
@@ -263,8 +270,7 @@ class LogAnalyzer(object):
             # ax.xaxis.set_major_locator(MaxNLocator(prune='both'))
             ax.xaxis.set_minor_locator(hrs)
             ax.xaxis.set_major_formatter(xfmt)
-            plt.legend(loc='lower right', framealpha = 0.7)
-
+            plt.legend(loc="lower right", framealpha=0.7)
 
             plt.subplot(133)
             # plt.subplot(len(paths), 3, i * 2 + 2)
@@ -279,7 +285,7 @@ class LogAnalyzer(object):
             # plt.ylabel("# of vehicles")
             plt.xlabel("Simulation Time (hrs in days)")
             # plt.xlabel("simulation time (yy-mm-dd hh:min:sec)")
-            plt.xticks(ha='left')
+            plt.xticks(ha="left")
             # plt.ylim([0, 10100])
             ax = plt.gca()
             ax.set_xticks(summary.t)
@@ -290,7 +296,7 @@ class LogAnalyzer(object):
             # if i != len(paths) - 1:
             #     plt.xticks([])
             # if i == 0:
-            plt.legend(loc="lower right", framealpha = 0.7)
+            plt.legend(loc="lower right", framealpha=0.7)
 
             plt.subplot(132)
             # plt.subplot(len(paths), 3, i * 2 + 2)
@@ -303,7 +309,7 @@ class LogAnalyzer(object):
             plt.ylabel("Avg. Travel Distance per vehicle per hour (in Km)")
             plt.xlabel("Simulation Time (hrs in days)")
             # plt.xlabel("simulation time (yy-mm-dd hh:min:sec)")
-            plt.xticks(ha='left')
+            plt.xticks(ha="left")
             # plt.ylim([0, 10100])
             ax = plt.gca()
             ax.set_xticks(summary.t)
@@ -314,7 +320,7 @@ class LogAnalyzer(object):
             # if i != len(paths) - 1:
             #     plt.xticks([])
             # if i == 0:
-            plt.legend(loc="upper left", framealpha = 0.7)
+            plt.legend(loc="upper left", framealpha=0.7)
         return plt
 
     def plot_metrics_ts(self, paths, labels, plt):
@@ -362,10 +368,12 @@ class LogAnalyzer(object):
             plt.subplot(151)
             plt.xlabel("Profit ($/h)")
             plt.hist(
-                score.profit_per_hour, bins=100,
-                range=((score.profit_per_hour.min() + 50), score.profit_per_hour.max(
-
-                )), alpha=0.5, label=labels[0])
+                score.profit_per_hour,
+                bins=100,
+                range=((score.profit_per_hour.min() + 50), score.profit_per_hour.max()),
+                alpha=0.5,
+                label=labels[0],
+            )
             # plt.yticks([])
             plt.gca().yaxis.set_major_formatter(yfmt)
             plt.ylabel("# of vehicles (in 1000s)")
@@ -383,8 +391,11 @@ class LogAnalyzer(object):
             plt.subplot(152)
             plt.xlabel("Cruising time (h/day)")
             plt.hist(
-                score.cruising_hour, bins=100, range=(score.cruising_hour.min(), score.cruising_hour.max()), alpha=0.5,
-                label=labels[1]
+                score.cruising_hour,
+                bins=100,
+                range=(score.cruising_hour.min(), score.cruising_hour.max()),
+                alpha=0.5,
+                label=labels[1],
             )
             # plt.yticks([])
             plt.gca().yaxis.set_major_formatter(yfmt)
@@ -393,8 +404,13 @@ class LogAnalyzer(object):
 
             plt.subplot(153)
             plt.xlabel("Occupancy Rate (%)")
-            plt.hist(score.occupancy_rate, bins=100, range=(score.occupancy_rate.min(), score.occupancy_rate.max()),
-                     alpha=0.5, label=labels[2])
+            plt.hist(
+                score.occupancy_rate,
+                bins=100,
+                range=(score.occupancy_rate.min(), score.occupancy_rate.max()),
+                alpha=0.5,
+                label=labels[2],
+            )
             # plt.yticks([])
             plt.gca().yaxis.set_major_formatter(yfmt)
             plt.ylabel("# of vehicles (in 1000s)")
@@ -423,8 +439,13 @@ class LogAnalyzer(object):
             plt.xlabel("Travel Distance (km/h)")
             plt.gca().xaxis.set_major_formatter(yfmt)
             score.travel_dist /= score.working_hour
-            plt.hist(score.travel_dist, bins=100, range=(score.travel_dist.min(), score.travel_dist.max()),
-                     alpha=0.5, label=labels[4])
+            plt.hist(
+                score.travel_dist,
+                bins=100,
+                range=(score.travel_dist.min(), score.travel_dist.max()),
+                alpha=0.5,
+                label=labels[4],
+            )
             # plt.yticks([])
             plt.gca().yaxis.set_major_formatter(yfmt)
             plt.ylabel("# of vehicles (in 1000s)")

@@ -1,7 +1,10 @@
 from novelties import status_codes
+
 # from .services.demand_prediction_service import DemandPredictionService
 from config.settings import TIMESTEP, MIN_DISPATCH_CYCLE, MAX_DISPATCH_CYCLE
 import numpy as np
+import pandas as pd
+
 
 class DispatchPolicy(object):
     def __init__(self):
@@ -34,17 +37,27 @@ class DispatchPolicy(object):
         # print("I:", len(idle_vehicles))
         # print("C:", len(cruising_vehicles))
         # Retrieve idle vehicles to be dispatched -> those that exceeded the min dispatch cycle being idle
-        tbd_idle_vehicles = idle_vehicles.loc[[
-            vehicle_id for vehicle_id in idle_vehicles.index
-            if current_time - self.updated_at.get(vehicle_id, 0) >= MIN_DISPATCH_CYCLE
-        ]]
+        tbd_idle_vehicles = idle_vehicles.loc[
+            [
+                vehicle_id
+                for vehicle_id in idle_vehicles.index
+                if current_time - self.updated_at.get(vehicle_id, 0)
+                >= MIN_DISPATCH_CYCLE
+            ]
+        ]
         # Retrieve cruising vehicles to be dispatched -> those that exceeded the max dispatch cycle
-        tbd_cruising_vehicles = cruising_vehicles.loc[[
-            vehicle_id for vehicle_id in cruising_vehicles.index
-            if current_time - self.updated_at.get(vehicle_id, 0) >= MAX_DISPATCH_CYCLE
-        ]]
+        tbd_cruising_vehicles = cruising_vehicles.loc[
+            [
+                vehicle_id
+                for vehicle_id in cruising_vehicles.index
+                if current_time - self.updated_at.get(vehicle_id, 0)
+                >= MAX_DISPATCH_CYCLE
+            ]
+        ]
 
-        tbd_vehicles = tbd_idle_vehicles.append(tbd_cruising_vehicles)
+        # tbd_vehicles = tbd_idle_vehicles.append(tbd_cruising_vehicles)
+        tbd_vehicles = pd.concat([tbd_idle_vehicles, tbd_cruising_vehicles])
+
         # Max num of vehicles that can be dispatched in one dispatch cycle
         # One dispatch cycle = MIN_DISPATCH_CYCLE * TIMESTEP
         max_n = int(len(vehicles) / MIN_DISPATCH_CYCLE * TIMESTEP)
@@ -62,7 +75,9 @@ class DispatchPolicy(object):
 
     # Creating Dispatch dictionary associated with each vehicle ID, it could be decided for that vehicle to be
     # Offduty, or be assigned a destination to head to, or have a cache key
-    def create_dispatch_dict(self, vehicle_id, destination=None, offduty=False, cache_key=None):
+    def create_dispatch_dict(
+        self, vehicle_id, destination=None, offduty=False, cache_key=None
+    ):
         dispatch_dict = {}
         dispatch_dict["vehicle_id"] = vehicle_id
         if offduty:

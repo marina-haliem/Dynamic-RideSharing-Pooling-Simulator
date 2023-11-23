@@ -1,0 +1,171 @@
+* DQN for car pooling
+** Simulator Driver
+** Policies:
++ Types of policies:
+  #+begin_src python
+    if FLAGS.train:
+        print("Set training mode")
+        # print(tf.__version__)
+        dispatch_policy = DQNDispatchPolicyLearner()
+        dispatch_policy.build_q_network(load_network=FLAGS.load_network)
+
+    else:
+        dispatch_policy = DQNDispatchPolicy()
+        if FLAGS.load_network:
+            dispatch_policy.build_q_network(load_network=FLAGS.load_network)
+#+end_src
++ Important:
+
+  #+begin_src python
+    class DispatchPolicy(object):
+    #+end_src
+
+  #+begin_src python
+    class DQNDispatchPolicy(DispatchPolicy):
+    #+end_src
+** Feature constructor:
++ A bunch of magic to map locations to actions
++ Important part:
+
+  #+begin_src python
+    def predict_best_action(self, vehicle_id, vehicle_state):
+        if vehicle_state.idle_duration >= MIN_DISPATCH_CYCLE and FLAGS.offduty_probability > np.random.random():
+            a, offduty = (0, 0), 1
+
+        elif self.q_network is None:
+            a, offduty = (0, 0), 0
+
+        else:
+            x, y = mesh.convert_lonlat_to_xy(vehicle_state.lon, vehicle_state.lat)
+            if (x, y) in self.q_cache:
+                actions, Q, amax = self.q_cache[(x, y)]
+            else:
+                # Get state features and action features
+                s, actions = self.feature_constructor.construct_current_features(x, y)
+                # TODO Q value is computed here
+                Q = self.q_network.compute_q_values(s)
+                wait_action_value = Q[0]
+                actions = [a for a, q in zip(actions, Q) if q >= wait_action_value]
+                Q = Q[Q >= wait_action_value]
+                amax = np.argmax(Q)     # Get the index of the max value
+                self.q_cache[(x, y)] = actions, Q, amax     # Save in cache
+
+            # What happens here? => Indexing posible actions
+            
+            aidx = self.q_network.get_action(Q, amax)   # Get action with max Q value
+            a = actions[aidx]
+            offduty = 1 if Q[aidx] < FLAGS.offduty_threshold else 0
+            vehicle = VehicleRepository.get(vehicle_id)
+            q_action = {(x+ax, y+ay):q for (ax,ay), q in zip(actions, Q)}
+            vehicle.q_action_dict = q_action
+            vehicle.epsilon = int(len(vehicle.q_action_dict)*0.05)
+            # print("Loc: ", x, " , ", y)
+            # print("Act: ", tmp_q_action)
+            # print("Added:", vehicle.q_action_dict)
+        return a, offduty
+        #+end_src
+
+
+** Agents
+*** DQN Agent
++ Dispatch policy
++ Pricing policy
++ get_dispatch_commands =>
+
+  #+begin_src python
+    def get_dispatch_commands(self, current_time, vehicles):
+        dispatch_commands = self.dispatch_policy.dispatch(current_time, vehicles)
+        return dispatch_commands
+#+end_src
+
+*** Dummy Agent
++ Dispatch policy
++ Pricing policy
+*** Central Agent:
++ Routing policy
+** Simulator
+*** Vehicle Repository
++
+  #+begin_src python
+  def populate(cls, vehicle_id, location, type):
+#+end_src
+
+  Fills the vehicles map
+
++ self.vehicles => map vehicle_id => Vehicle(state)
++ get states(cls)
+  #+begin_src python
+    df["earnings"] = [vehicle.earnings for vehicle in cls.get_all()]
+    df["pickup_time"] = [vehicle.pickup_time for vehicle in cls.get_all()]
+    df["cost"] = [vehicle.compute_fuel_consumption() for vehicle in cls.get_all()]
+    df["total_idle"] = [vehicle.get_idle_duration() for vehicle in cls.get_all()]
+    df => dataframe
+    #+end_src
+
+*** Vehicle
+
++ behavior_models = {
+    status_codes.V_IDLE: Idle(),
+    status_codes.V_CRUISING: Cruising(),
+    status_codes.V_OCCUPIED: Occupied(),
+    status_codes.V_ASSIGNED: Assigned(),
+    status_codes.V_OFF_DUTY: OffDuty()
+ }
++ def step(self, timestep):
+  updates according to self.state.status:
+  + V_OCCUPIED, V_CRUISING, V_ASSIGNED, V_IDLE
+
++ self.duration [status_code => time]
+  self.idle_duration
++ a bunch of functions detailing actions
+
+*** Vehicle Behaviour
++ Behaviour models: What do they set?
+  + Class with a def drive(self, vehicle, timestep): method
++ Behaviours have a step method that represents the actions to take
+
+*** Vehicle State
++ STATE VECTOR => __slots__ = [
+        'id', 'lat', 'lon', 'speed', 'status', 'destination_lat', 'destination_lon', 'type', 'travel_dist', 'price_per_travel_m', 'price_per_wait_min', 'gas_price',
+        'assigned_customer_id', 'time_to_destination', 'idle_duration', 'current_capacity', 'max_capacity',
+        'driver_base_per_trip', 'mileage', 'agent_type', 'accept_new_request']
++ self.agent_type = agent_type
+  Vehicles are tied to agents!
++
+  #+begin_src python
+  def selectVehicleType(self): Returns a vehicle type
+  #+end_src
+
+*** Customer
++ self.status = status_codes.C_CALLING
++ Customers have preferences:
+  + Any car or a luxury car
+  + Hurry or not
+  + to ride share or not
+
++ Customer Repository:
+
+  #+begin_src python
+    request_column_names = [
+        'id',
+        'request_datetime',
+        'trip_time',
+        'origin_lon',
+        'origin_lat',
+        'destination_lon',
+        'destination_lat',
+        'fare'
+    ]
+  #+end_src
+* Implementation:
+** TODO dm-Haiku Translation:
++ Translated the network
++ Separate network evaluation from implementation
++ Isolate the training loop
+*** TODO Evaluation
++ Need the NN model
++ Function that applies it
++ Transform the function with hk.transform
++ initialize the network
+
+*** TODO Training

@@ -2,8 +2,13 @@ import numpy as np
 import pandas as pd
 from db import engine
 from common.time_utils import get_local_datetime
-from config.settings import MAP_WIDTH, MAP_HEIGHT, GLOBAL_STATE_UPDATE_CYCLE,\
-    DESTINATION_PROFILE_TEMPORAL_AGGREGATION, DESTINATION_PROFILE_SPATIAL_AGGREGATION
+from config.settings import (
+    MAP_WIDTH,
+    MAP_HEIGHT,
+    GLOBAL_STATE_UPDATE_CYCLE,
+    DESTINATION_PROFILE_TEMPORAL_AGGREGATION,
+    DESTINATION_PROFILE_SPATIAL_AGGREGATION,
+)
 
 
 class DemandLoader(object):
@@ -19,7 +24,7 @@ class DemandLoader(object):
         demand = []
 
         for _ in range(horizon + 1):
-            if abs(x) <= 0.5:   # If less than 30 minutes
+            if abs(x) <= 0.5:  # If less than 30 minutes
                 d = self.__compute_demand(x, self.hourly_demand[0:2])
             elif 0.5 < x and x <= 1.5:  # If > half an hour and < 1.5 hours
                 d = self.__compute_demand(x - 1, self.hourly_demand[1:3])
@@ -37,7 +42,12 @@ class DemandLoader(object):
         return demand[1:], demand[0] - latest_demand
 
     def __compute_demand(self, x, d):
-        return ((d[1] - d[0]) * x + (d[0] + d[1]) / 2) / 3600.0 * self.timestep * self.amplification_factor
+        return (
+            ((d[1] - d[0]) * x + (d[0] + d[1]) / 2)
+            / 3600.0
+            * self.timestep
+            * self.amplification_factor
+        )
 
     # Load demand from DB for each hour
     def update_hourly_demand(self, t, max_hours=4):
@@ -45,10 +55,13 @@ class DemandLoader(object):
         current_time = localtime.month, localtime.day, localtime.hour
         if len(self.hourly_demand) == 0 or self.current_time != current_time:
             self.current_time = current_time
-            self.hourly_demand = [self.load_demand_profile(t + 60 * (60 * i - 30)) for i in range(max_hours)]
+            self.hourly_demand = [
+                self.load_demand_profile(t + 60 * (60 * i - 30))
+                for i in range(max_hours)
+            ]
 
         x = (localtime.minute - 30) / 60.0
-        return x        # Fraction of hours
+        return x  # Fraction of hours
 
     @staticmethod
     def load_demand_profile(t):
@@ -59,10 +72,12 @@ class DemandLoader(object):
           SELECT x, y, demand
           FROM demand_profile
           WHERE dayofweek = {dayofweek} and hour = {hour};
-                """.format(dayofweek=dayofweek, hour=hour)
+                """.format(
+            dayofweek=dayofweek, hour=hour
+        )
         demand = pd.read_sql(query, engine, index_col=["x", "y"]).demand
         M = np.zeros((MAP_WIDTH, MAP_HEIGHT))
-        for (x, y), c in demand.iteritems():
+        for (x, y), c in demand.items():
             M[x, y] += c
         return M
 
@@ -76,8 +91,14 @@ class DemandLoader(object):
           SELECT origin_x, origin_y, destination_x, destination_y, demand, trip_time
           FROM od_profile
           WHERE dayofweek = {dayofweek} and hours_bin = {hours_bin};
-                """.format(dayofweek=dayofweek, hours_bin=hours_bin)
-        df = pd.read_sql(query, engine, index_col=["origin_x", "origin_y", "destination_x", "destination_y"])
+                """.format(
+            dayofweek=dayofweek, hours_bin=hours_bin
+        )
+        df = pd.read_sql(
+            query,
+            engine,
+            index_col=["origin_x", "origin_y", "destination_x", "destination_y"],
+        )
         X_size = int(MAP_WIDTH / DESTINATION_PROFILE_SPATIAL_AGGREGATION) + 1
         Y_size = int(MAP_HEIGHT / DESTINATION_PROFILE_SPATIAL_AGGREGATION) + 1
         OD = np.full((X_size, Y_size, X_size, Y_size), alpha)
@@ -91,7 +112,7 @@ class DemandLoader(object):
         average_TT = np.zeros((X_size, Y_size))
         for ox in range(X_size):
             for oy in range(Y_size):
-               average_TT[ox, oy] = (TT[ox, oy] * OD[ox, oy]).sum()
+                average_TT[ox, oy] = (TT[ox, oy] * OD[ox, oy]).sum()
         # TT = np.tensordot(TT, OD, axes=[(2, 3), (2, 3)])
         return OD, average_TT
 
@@ -101,10 +122,11 @@ class DemandLoader(object):
           SELECT x, y, demand
           FROM demand_latest
           WHERE t > {t_start} and t <= {t_end};
-                """.format(t_start = t_start, t_end = t_end)
+                """.format(
+            t_start=t_start, t_end=t_end
+        )
         demand = pd.read_sql(query, engine, index_col=["x", "y"]).demand
         M = np.zeros((MAP_WIDTH, MAP_HEIGHT))
-        for (x, y), c in demand.iteritems():
+        for (x, y), c in demand.items():
             M[x, y] += c
         return M
-

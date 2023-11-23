@@ -1,3 +1,4 @@
+import pathlib
 import os
 # db_dir = "C:\\Users\\17657\\Desktop\\RideSharing_Pricing\\data\\db.sqlite3"
 db_dir = "data/db.sqlite3"
@@ -7,6 +8,8 @@ OSRM_HOSTPORT = os.getenv("OSRM_HOSTPORT", "localhost:5000")
 
 DEFAULT_LOG_DIR = "logs/tmp"
 DATA_DIR = "data"
+
+BASE_PATH = pathlib.Path(__file__).parent.parent
 
 CENTER_LATITUDE = 40.75
 CENTER_LONGITUDE = -73.90

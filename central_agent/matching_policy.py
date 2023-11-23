@@ -8,6 +8,7 @@ from simulator.services.routing_service import RoutingEngine
 import pandas as pd
 from simulator.models.vehicle.vehicle_repository import VehicleRepository
 
+
 class MatchingPolicy(object):
     def match(self, current_time, vehicles, requests):
         return []
@@ -18,14 +19,18 @@ class MatchingPolicy(object):
     def find_available_vehicles(self, vehicles):
         # This function retrieves a list of idle vehicles to serve as candidates for upcoming rides.
         idle_vehicles = vehicles[
-            (((vehicles.status == status_codes.V_IDLE) |
-            (vehicles.status == status_codes.V_CRUISING)) &
-            (vehicles.idle_duration > 0))
+            (
+                (
+                    (vehicles.status == status_codes.V_IDLE)
+                    | (vehicles.status == status_codes.V_CRUISING)
+                )
+                & (vehicles.idle_duration > 0)
+            )
             # | (vehicles.status == status_codes.V_OCCUPIED)
         ]
         v_list = []
         for index, v in idle_vehicles.iterrows():
-            if v['current_capacity'] < v['max_capacity']:
+            if v["current_capacity"] < v["max_capacity"]:
                 v_list.append(v)
         return pd.DataFrame(v_list)
 
@@ -42,19 +47,26 @@ class MatchingPolicy(object):
         # For the case when ridesharing is enabled, this function retrieves a list of idle vehicles as well as
         # occupied vehicles that hasn't reached their maximum capacity as candidate vehicles for the upcoming rides.
         idle_vehicles = vehicles[
-            (((vehicles.status == status_codes.V_IDLE) |
-            (vehicles.status == status_codes.V_CRUISING)) &
-            (vehicles.idle_duration > 0))
-            | ((vehicles.status == status_codes.V_OCCUPIED) & vehicles.accept_new_request)
+            (
+                (
+                    (vehicles.status == status_codes.V_IDLE)
+                    | (vehicles.status == status_codes.V_CRUISING)
+                )
+                & (vehicles.idle_duration > 0)
+            )
+            | (
+                (vehicles.status == status_codes.V_OCCUPIED)
+                & vehicles.accept_new_request
+            )
         ]
         # print(type(idle_vehicles))
         # print(idle_vehicles["status"])
         v_list = []
         v_capacity = []
         for index, v in idle_vehicles.iterrows():
-            if v['current_capacity'] < v['max_capacity']:
+            if v["current_capacity"] < v["max_capacity"]:
                 v_list.append(v)
-                v_capacity.append(v['max_capacity'] - v['current_capacity'])
+                v_capacity.append(v["max_capacity"] - v["current_capacity"])
                 # print(v["status"])
         return pd.DataFrame(v_list), v_capacity
 
@@ -72,18 +84,28 @@ class RoughMatchingPolicy(MatchingPolicy):
         if n_vehicles == 0:
             return assignments
         # List of distances for all available vehicles to requests' origin points
-        d = great_circle_distance(vehicles.lat.values, vehicles.lon.values,
-                                  requests.origin_lat.values[:, None], requests.origin_lon.values[:, None])
+        d = great_circle_distance(
+            vehicles.lat.values,
+            vehicles.lon.values,
+            requests.origin_lat.values[:, None],
+            requests.origin_lon.values[:, None],
+        )
 
         for ridx, request_id in enumerate(requests.index):
-            vidx = d[ridx].argmin()     # Retrieving the min distance (nearest vehicle to request)
+            vidx = d[
+                ridx
+            ].argmin()  # Retrieving the min distance (nearest vehicle to request)
             # Check if it is within the acceptable range of travelling distance
             if d[ridx, vidx] < self.reject_distance:
                 vehicle_id = vehicles.index[vidx]
                 duration = d[ridx, vidx] / 8.0
                 distance = d[ridx, vidx]
-                assignments.append(self.create_matching_dict(vehicle_id, request_id, duration, distance))
-                d[:, vidx] = float('inf')
+                assignments.append(
+                    self.create_matching_dict(
+                        vehicle_id, request_id, duration, distance
+                    )
+                )
+                d[:, vidx] = float("inf")
             else:
                 continue
             if len(assignments) == n_vehicles:
@@ -94,12 +116,11 @@ class RoughMatchingPolicy(MatchingPolicy):
 class GreedyMatchingPolicy(MatchingPolicy):
     def __init__(self, reject_distance=5000):
         self.reject_distance = reject_distance  # meters
-        self.reject_wait_time = 15 * 60         # seconds
-        self.k = 3                              # the number of mesh to aggregate
-        self.unit_length = 500                  # mesh size in meters
-        self.max_locations = 40                 # max number of origin/destination points
+        self.reject_wait_time = 15 * 60  # seconds
+        self.k = 3  # the number of mesh to aggregate
+        self.unit_length = 500  # mesh size in meters
+        self.max_locations = 40  # max number of origin/destination points
         self.routing_engine = RoutingEngine.create_engine()
-
 
     def get_coord(self, lon, lat):
         # Given a GPS (Longtitude, Latitude), find the corresponding x,y on the discrete map (mesh).
@@ -119,8 +140,8 @@ class GreedyMatchingPolicy(MatchingPolicy):
         for r in range(1, reject_range):
             for dx in range(-r, r + 1):
                 for dy in range(-r, r + 1):
-                    r_2 = dx ** 2 + dy ** 2
-                    if r ** 2 <= r_2 and r_2 < (r + 1) ** 2:
+                    r_2 = dx**2 + dy**2
+                    if r**2 <= r_2 and r_2 < (r + 1) ** 2:
                         candidate_vids += V[(x + dx, y + dy)][:]
                 if len(candidate_vids) > n_requests * 2:
                     break
@@ -144,21 +165,39 @@ class GreedyMatchingPolicy(MatchingPolicy):
             vid = vehicle_ids[vi]
 
             assignments.append((vid, rid, tt, dd))
-            T[:, vi] = float('inf')
+            T[:, vi] = float("inf")
         return assignments
 
     # Return list of candidate vehicle in order of the nearest to the request.
     def filter_candidates(self, vehicles, requests):
-        d = great_circle_distance(vehicles.lat.values, vehicles.lon.values,
-                                  requests.origin_lat.mean(), requests.origin_lon.mean())
+        d = great_circle_distance(
+            vehicles.lat.values,
+            vehicles.lon.values,
+            requests.origin_lat.mean(),
+            requests.origin_lon.mean(),
+        )
 
-        within_limit_distance = d < self.reject_distance + self.unit_length * (self.k - 1)
+        within_limit_distance = d < self.reject_distance + self.unit_length * (
+            self.k - 1
+        )
         candidates = vehicles.index[within_limit_distance]
         d = d[within_limit_distance]
-        return candidates[np.argsort(d)[:2 * len(requests) + 1]].tolist()
+        return candidates[np.argsort(d)[: 2 * len(requests) + 1]].tolist()
 
-    def assign_nearest_vehicle_RideShare(self, request_ids, all_target_ridx, requestAssigned, vehicle_ids, vehicle_idx,
-                                         T, TRR, TDD, dist, d_RR, d_DD):
+    def assign_nearest_vehicle_RideShare(
+        self,
+        request_ids,
+        all_target_ridx,
+        requestAssigned,
+        vehicle_ids,
+        vehicle_idx,
+        T,
+        TRR,
+        TDD,
+        dist,
+        d_RR,
+        d_DD,
+    ):
         # In the case when ridehsaring is enabled, this function assigns the nereast vehicle to the ride as long as it hasn't
         # reached its maximum capacity. The vehicle will then reconsider the best route to accomodate all assigned rides.
         assignments = []
@@ -233,8 +272,8 @@ class GreedyMatchingPolicy(MatchingPolicy):
                         # T[ri, vi] = T[ri, vi] + tt
                         # print("TTA",T[:, vi])
             else:
-                T[:, vi] = float('inf')
-                dist[:, vi] = float('inf')
+                T[:, vi] = float("inf")
+                dist[:, vi] = float("inf")
         return assignments
 
     # Matching requests to the nearest available vehicle greedily (in the case of no ridesharing)
@@ -266,15 +305,21 @@ class GreedyMatchingPolicy(MatchingPolicy):
             if not R[coord]:
                 continue
 
-            for i in range(int(np.ceil(len(R[coord]) / self.max_locations)))
-                target_rids = R[coord][i * self.max_locations : (i + 1) * self.max_locations]
+            for i in range(int(np.ceil(len(R[coord]) / self.max_locations))):
+                target_rids = R[coord][
+                    i * self.max_locations : (i + 1) * self.max_locations
+                ]
 
-                candidate_vids = self.find_candidates(coord, len(target_rids), V, reject_range)
+                candidate_vids = self.find_candidates(
+                    coord, len(target_rids), V, reject_range
+                )
                 if len(candidate_vids) == 0:
                     continue
 
                 target_latlon = r_latlon.loc[target_rids]
-                candidate_vids = self.filter_candidates(v_latlon.loc[candidate_vids], target_latlon)
+                candidate_vids = self.filter_candidates(
+                    v_latlon.loc[candidate_vids], target_latlon
+                )
                 if len(candidate_vids) == 0:
                     continue
                 candidate_latlon = v_latlon.loc[candidate_vids]
@@ -283,8 +328,10 @@ class GreedyMatchingPolicy(MatchingPolicy):
                 # Calcualte Distance from the nearest vehicle's location to thr request's origin location
                 # print("T.T: ", T.T)
                 # print(dist_matrix)
-                #T.T here .T is for Transpose
-                assignments = self.assign_nearest_vehicle(target_rids, candidate_vids, T.T, dist.T)
+                # T.T here .T is for Transpose
+                assignments = self.assign_nearest_vehicle(
+                    target_rids, candidate_vids, T.T, dist.T
+                )
                 for vid, rid, tt, d in assignments:
                     match_list.append(self.create_matching_dict(vid, rid, tt, d))
                     # od_pairs.append((v_latlon.loc[vid], target_latlon.loc[rid]))
@@ -307,9 +354,9 @@ class GreedyMatchingPolicy(MatchingPolicy):
 
         n_vehicles = len(vehicles)
         # nV = 4 * len(requests)
-        nV = sum(cap_list)      ######### Updated based on capacity
+        nV = sum(cap_list)  ######### Updated based on capacity
         # print(nV)
-        if (n_vehicles > nV):
+        if n_vehicles > nV:
             vehicles = vehicles.iloc[range(nV), :]
 
         # print("SA: Inside GreedyMatching Match ", "V:", len(vehicles), "R:", len(requests))
@@ -348,7 +395,9 @@ class GreedyMatchingPolicy(MatchingPolicy):
         # print("Candidate IDs: ", all_candidate_vids)
         # print("Target IDs: ", all_target_rids)
         # Dictionary of vehicle IDs and their index in the candidate list
-        all_candidate_vidx = dict(zip(all_candidate_vids, range(len(all_candidate_vids))))
+        all_candidate_vidx = dict(
+            zip(all_candidate_vids, range(len(all_candidate_vids)))
+        )
         # print("All Candidates: ", all_candidate_vidx, len(all_candidate_vids))
         all_target_ridx = dict(zip(all_target_rids, range(len(all_target_rids))))
         # print("All targets: ", all_target_ridx, len(all_target_rids))
@@ -386,13 +435,17 @@ class GreedyMatchingPolicy(MatchingPolicy):
             # for i in range(int(np.ceil(len(R[coord]) / self.max_locations))):
             target_rids = R[coord]
             # print("TR: ", target_rids)
-            candidate_vids = self.find_candidates(coord, len(target_rids), V, reject_range)
+            candidate_vids = self.find_candidates(
+                coord, len(target_rids), V, reject_range
+            )
             # print("Cand. Vehicles: ", len(candidate_vids))
             if len(candidate_vids) == 0:
                 continue
 
             target_latlon = r_latlon.loc[target_rids]
-            candidate_vids = self.filter_candidates(v_latlon.loc[candidate_vids], target_latlon)
+            candidate_vids = self.filter_candidates(
+                v_latlon.loc[candidate_vids], target_latlon
+            )
             # print("Filtered Vehicles: ", len(candidate_vids))
             if len(candidate_vids) == 0:
                 continue
@@ -400,9 +453,19 @@ class GreedyMatchingPolicy(MatchingPolicy):
             requestAssigned = defaultdict(list)
             # All candiaidate vehicles that can pickup this specific customer
             candidate_vidx = [all_candidate_vidx[v] for v in candidate_vids]
-            assignments = self.assign_nearest_vehicle_RideShare(target_rids, all_target_ridx, requestAssigned,
-                                                                candidate_vids,
-                                                                candidate_vidx, T.T, TRR, TDD, dist.T, Dist_RR, Dist_DD)
+            assignments = self.assign_nearest_vehicle_RideShare(
+                target_rids,
+                all_target_ridx,
+                requestAssigned,
+                candidate_vids,
+                candidate_vidx,
+                T.T,
+                TRR,
+                TDD,
+                dist.T,
+                Dist_RR,
+                Dist_DD,
+            )
             for vid, rid, tt, d in assignments:
                 commands.append(self.create_matching_dict(vid, rid, tt, d))
                 # od_pairs.append((v_latlon.loc[vid], target_latlon.loc[rid]))
@@ -416,7 +479,10 @@ class GreedyMatchingPolicy(MatchingPolicy):
                 # vehicles[vid].update_capacity()
                 # if vid in V[vid2coord[vid]]:
                 #   V[vid2coord[vid]].remove(vid)
-                if vehicle.tmp_capacity >= vehicle.state.max_capacity and vid in V[vid2coord[vid]]:
+                if (
+                    vehicle.tmp_capacity >= vehicle.state.max_capacity
+                    and vid in V[vid2coord[vid]]
+                ):
                     V[vid2coord[vid]].remove(vid)
 
         return commands
@@ -428,11 +494,12 @@ class GreedyMatchingPolicy(MatchingPolicy):
         # origin_set = list(set(origins))
         origin_set = list(origins)
         latlon2oi = {latlon: oi for oi, latlon in enumerate(origin_set)}
-        T, d = np.array(self.routing_engine.eta_many_to_many(origin_set, destins), dtype=np.float32)
-        T[np.isnan(T)] = float('inf')
-        d[np.isnan(d)] = float('inf')
+        T, d = np.array(
+            self.routing_engine.eta_many_to_many(origin_set, destins), dtype=np.float32
+        )
+        T[np.isnan(T)] = float("inf")
+        d[np.isnan(d)] = float("inf")
         T = T[[latlon2oi[latlon] for latlon in origins]]
         # print("T: ", T)
         # print("D: ", d.shape)
         return [T, d]
-
